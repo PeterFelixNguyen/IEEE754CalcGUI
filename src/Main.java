@@ -6,6 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -146,9 +147,15 @@ class MenuBar extends JMenuBar {
 
     // Option items
     private JMenu jmOption = new JMenu("Options");
+    private JMenu jmFraction = new JMenu("Trailing Zeroes");
+    private JRadioButtonMenuItem jrbmiShowFracTrail = new JRadioButtonMenuItem("Show", null, true);
+    private JRadioButtonMenuItem jrbmiHideFracTrail = new JRadioButtonMenuItem("Hide", null, false);
 
     // Help ITEMS
     private JMenu jmHelp = new JMenu("Help");
+    private JMenuItem jmiAboutCalc = new JMenuItem("About IEEE754Calc");
+    private JMenuItem jmiDeveloperContact = new JMenuItem("Developer Contact");
+    private JMenuItem jmiHowToUse = new JMenuItem("Calculator Manual");
 
     /**
      * MenuBar constructor
@@ -159,8 +166,30 @@ class MenuBar extends JMenuBar {
         add(jmOption);
         add(jmHelp);
 
+        // Mode items
+        ButtonGroup modeGroup = new ButtonGroup();
+        modeGroup.add(jrbmiDecToBin);
+        modeGroup.add(jrbmiBinToDec);
         jmMode.add(jrbmiDecToBin);
         jmMode.add(jrbmiBinToDec);
 
+        // Edit items
+        jmEdit.add(jmiClear);
+        jmEdit.add(jmiCut);
+        jmEdit.add(jmiCopy);
+        jmEdit.add(jmiPaste);
+
+        // Option items
+        ButtonGroup showTrailFracGroup = new ButtonGroup();
+        showTrailFracGroup.add(jrbmiShowFracTrail);
+        showTrailFracGroup.add(jrbmiHideFracTrail);
+        jmOption.add(jmFraction);
+        jmFraction.add(jrbmiShowFracTrail);
+        jmFraction.add(jrbmiHideFracTrail);
+
+        // Help items
+        jmHelp.add(jmiAboutCalc);
+        jmHelp.add(jmiDeveloperContact);
+        jmHelp.add(jmiHowToUse);
     }
 }
