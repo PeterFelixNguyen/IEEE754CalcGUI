@@ -9,7 +9,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -26,6 +30,7 @@ class Frame extends JFrame {
 
     public Frame() {
         add(new Panel());
+        setJMenuBar(new MenuBar());
         setTitle("IEEE-754 Converter");
         setSize(480, 220);
         setResizable(false);
@@ -60,7 +65,6 @@ class Panel extends JPanel {
         jpRightInUpper.setBorder(new TitledBorder("Enter Value"));
         jpUpper.add(jpRightInUpper);
 
-
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         container3.add(jtfInput);
         container3.add(jbCalculate);
@@ -76,6 +80,7 @@ class Panel extends JPanel {
 
         jbCalculate.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 BinaryFractionCalc calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
                 if (jsBitMode.getValue() == 1) {
@@ -89,6 +94,12 @@ class Panel extends JPanel {
     }
 }
 
+/**
+ * The PrecisionSlider is a JSlider used to configure the precision-mode
+ * for calculation of IEEE-754 fractions.
+ * 
+ * @author Peter Nguyen
+ */
 @SuppressWarnings("serial")
 class PrecisionSlider extends JSlider {
 
@@ -108,5 +119,48 @@ class PrecisionSlider extends JSlider {
         setPaintLabels(true);
         setPaintTicks(true);
         setValue(32);
+    }
+}
+
+/**
+ * This MenuBar contains all the calculator's other features. The mode menu on this
+ * allows the user to switch calculators. The edit menu allows the user to modify or
+ * access the output. The options menu contains output and input preferencees. The
+ * help menu contains information on the calculator and the developers.
+ * 
+ * @author Peter Nguyen
+ */
+@SuppressWarnings("serial")
+class MenuBar extends JMenuBar {
+    // Mode items
+    private JMenu jmMode = new JMenu("Mode");
+    private JRadioButtonMenuItem jrbmiDecToBin = new JRadioButtonMenuItem("Decimal to Binary", null, true);
+    private JRadioButtonMenuItem jrbmiBinToDec = new JRadioButtonMenuItem("Binary to Decimal", null, false);
+
+    // Edit items
+    private JMenu jmEdit = new JMenu("Edit");
+    private JMenuItem jmiClear = new JMenuItem("Clear");
+    private JMenuItem jmiCut = new JMenuItem("Cut");
+    private JMenuItem jmiCopy = new JMenuItem("Copy");
+    private JMenuItem jmiPaste = new JMenuItem("Paste");
+
+    // Option items
+    private JMenu jmOption = new JMenu("Options");
+
+    // Help ITEMS
+    private JMenu jmHelp = new JMenu("Help");
+
+    /**
+     * MenuBar constructor
+     */
+    public MenuBar() {
+        add(jmMode);
+        add(jmEdit);
+        add(jmOption);
+        add(jmHelp);
+
+        jmMode.add(jrbmiDecToBin);
+        jmMode.add(jrbmiBinToDec);
+
     }
 }
