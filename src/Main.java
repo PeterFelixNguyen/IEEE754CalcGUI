@@ -120,18 +120,7 @@ class Panel extends JPanel {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (jtfInput.getText().length() > 0) {
-
-                    calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
-
-                    if (jsBitMode.getValue() == 1) {
-                        jlOutput.setText(calc.getHalf());
-                    } else if (jsBitMode.getValue() == 2) {
-                        jlOutput.setText(calc.getSingle());
-                    } else {
-                        jlOutput.setText(calc.getDouble());
-                    }
-                }
+                convertToBits();
             }
         });
 
@@ -140,34 +129,12 @@ class Panel extends JPanel {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (jtfInput.getText().length() > 0) {
-
-                    calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
-
-                    if (jsBitMode.getValue() == 1) {
-                        jlOutput.setText(calc.getHalf());
-                    } else if (jsBitMode.getValue() == 2) {
-                        jlOutput.setText(calc.getSingle());
-                    } else {
-                        jlOutput.setText(calc.getDouble());
-                    }
-                }
+                convertToBits();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (jtfInput.getText().length() > 0) {
-
-                    calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
-
-                    if (jsBitMode.getValue() == 1) {
-                        jlOutput.setText(calc.getHalf());
-                    } else if (jsBitMode.getValue() == 2) {
-                        jlOutput.setText(calc.getSingle());
-                    } else {
-                        jlOutput.setText(calc.getDouble());
-                    }
-                }
+                convertToBits();
             }
 
             @Override
@@ -182,6 +149,37 @@ class Panel extends JPanel {
         AbstractDocument inputDoc = (AbstractDocument) jtfInput.getDocument();
         inputDoc.setDocumentFilter(new InputFilter(jsBitMode, jlOutput, jtfInput));
          */
+    }
+
+    /**
+     * Instructs the calculator to convert the bits based on jtfInput's value
+     */
+    private void convertToBits() {
+        if (jtfInput.getText().length() > 0) {
+
+            @SuppressWarnings("unused")
+            double checkFloat;
+            boolean validNumber = true;
+
+            try {
+                checkFloat = new Double(jtfInput.getText());
+            } catch (NumberFormatException ex) {
+                validNumber = false;
+                jlOutput.setText(" ");
+            }
+
+            if (validNumber) {
+                calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
+
+                if (jsBitMode.getValue() == 1) {
+                    jlOutput.setText(calc.getHalf());
+                } else if (jsBitMode.getValue() == 2) {
+                    jlOutput.setText(calc.getSingle());
+                } else {
+                    jlOutput.setText(calc.getDouble());
+                }
+            }
+        }
     }
 }
 
