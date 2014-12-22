@@ -63,7 +63,7 @@ class Frame extends JFrame {
     public Frame() {
         add(new Panel());
         setJMenuBar(new MenuBar());
-        setTitle("IEEE-754 Converter");
+        setTitle("IEEE 754 Converter");
         setSize(480, 220);
         setResizable(false);
         setLocationRelativeTo(null);
@@ -100,7 +100,7 @@ class Panel extends JPanel {
 
         JPanel jpRightInUpper = new JPanel();
         jpRightInUpper.setLayout(new BoxLayout(jpRightInUpper, BoxLayout.Y_AXIS));
-        jpRightInUpper.setBorder(new TitledBorder("Enter Value"));
+        jpRightInUpper.setBorder(new TitledBorder("Enter Decimal Value"));
         jpUpper.add(jpRightInUpper);
 
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -108,7 +108,7 @@ class Panel extends JPanel {
         jpRightInUpper.add(container3);
 
         JPanel jpLower = new JPanel(new GridLayout(2,1));
-        jpLower.setBorder(new TitledBorder("IEE-754 Bits:"));
+        jpLower.setBorder(new TitledBorder("IEEE 754 Bits"));
         add(jpLower);
 
         JPanel container4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -247,7 +247,7 @@ class InputFilter extends DocumentFilter {
 
 /**
  * The PrecisionSlider is a JSlider used to configure the precision-mode
- * for calculation of IEEE-754 fractions.
+ * for calculation of IEEE 754 fractions.
  */
 @SuppressWarnings("serial")
 class PrecisionSlider extends JSlider {
