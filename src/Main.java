@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -64,7 +66,7 @@ class Frame extends JFrame {
         add(new Panel());
         setJMenuBar(new MenuBar());
         setTitle("IEEE 754 Converter");
-        setSize(480, 220);
+        setSize(520, 280);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,8 +79,8 @@ class Frame extends JFrame {
 @SuppressWarnings("serial")
 class Panel extends JPanel {
     private PrecisionSlider jsBitMode = new PrecisionSlider();
-    private JTextField jtfInput = new JTextField(19);
-    private JLabel jlOutput = new JLabel(" ");
+    private JTextField jtfInput = new JTextField(20);
+    private JTextField jlOutput = new JTextField(44);
     private BinaryFractionCalc calc;
 
     /**
@@ -95,6 +97,7 @@ class Panel extends JPanel {
         jpUpper.add(jpLeftInUpper);
 
         JPanel container1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        jsBitMode.setPreferredSize(new Dimension(220, 50));
         container1.add(jsBitMode);
         jpLeftInUpper.add(container1);
 
@@ -112,6 +115,7 @@ class Panel extends JPanel {
         add(jpLower);
 
         JPanel container4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        jlOutput.setEditable(false);
         container4.add(jlOutput);
         jpLower.add(container4);
 
@@ -293,9 +297,11 @@ class MenuBar extends JMenuBar {
 
     // Option items
     private JMenu jmOption = new JMenu("Options");
-    private JMenu jmFraction = new JMenu("Trailing Zeroes");
-    private JRadioButtonMenuItem jrbmiShowFracTrail = new JRadioButtonMenuItem("Show", null, true);
-    private JRadioButtonMenuItem jrbmiHideFracTrail = new JRadioButtonMenuItem("Hide", null, false);
+    private JMenu jmGenericMenu = new JMenu("Generic Menu");
+    private JRadioButtonMenuItem jmiItem1 = new JRadioButtonMenuItem("Item 1", null, true);
+    private JRadioButtonMenuItem jmiItem2 = new JRadioButtonMenuItem("Item 2", null, false);
+    private JCheckBoxMenuItem jcbmiTrailing = new JCheckBoxMenuItem("Remove trailing zeroes");
+    private JCheckBoxMenuItem jcbmiSpaces = new JCheckBoxMenuItem("Add space delimiters");
 
     // Help ITEMS
     private JMenu jmHelp = new JMenu("Help");
@@ -327,11 +333,13 @@ class MenuBar extends JMenuBar {
 
         // Option items
         ButtonGroup showTrailFracGroup = new ButtonGroup();
-        showTrailFracGroup.add(jrbmiShowFracTrail);
-        showTrailFracGroup.add(jrbmiHideFracTrail);
-        jmOption.add(jmFraction);
-        jmFraction.add(jrbmiShowFracTrail);
-        jmFraction.add(jrbmiHideFracTrail);
+        showTrailFracGroup.add(jmiItem1);
+        showTrailFracGroup.add(jmiItem2);
+        jmOption.add(jmGenericMenu);
+        jmGenericMenu.add(jmiItem1);
+        jmGenericMenu.add(jmiItem2);
+        jmOption.add(jcbmiTrailing);
+        jmOption.add(jcbmiSpaces);
 
         // Help items
         jmHelp.add(jmiAboutCalc);
