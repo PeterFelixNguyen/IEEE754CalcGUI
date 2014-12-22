@@ -108,7 +108,7 @@ class Panel extends JPanel {
         jpRightInUpper.add(container3);
 
         JPanel jpLower = new JPanel(new GridLayout(2,1));
-        jpLower.setBorder(new TitledBorder("IEEE 754 Bits"));
+        jpLower.setBorder(new TitledBorder("IEEE 754 Binary Representation"));
         add(jpLower);
 
         JPanel container4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
