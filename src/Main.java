@@ -17,6 +17,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -58,13 +60,13 @@ public class Main {
  */
 @SuppressWarnings("serial")
 class Frame extends JFrame {
-
+    private Panel panel = new Panel();
     /**
      * Frame constructor
      */
     public Frame() {
-        add(new Panel());
-        setJMenuBar(new MenuBar());
+        add(panel);
+        setJMenuBar(new MenuBar(panel));
         setTitle("IEEE 754 Converter");
         setSize(520, 280);
         setResizable(false);
@@ -156,6 +158,14 @@ class Panel extends JPanel {
     }
 
     /**
+     * Clears the panel's input and output components
+     */
+    public void clear() {
+        jtfInput.setText("");
+        jlOutput.setText("");
+    }
+
+    /**
      * Instructs the calculator to convert the bits based on jtfInput's value
      */
     private void convertToBits() {
@@ -201,6 +211,13 @@ class InputFilter extends DocumentFilter {
         // no default constructor
     }
 
+    /**
+     * InputFilter constructor (work in progress)
+     * 
+     * @param jsBitMode
+     * @param jlOutput
+     * @param jtfInput
+     */
     public InputFilter(JSlider jsBitMode, JLabel jlOutput, JTextField jtfInput) {
         this.jsBitMode = jsBitMode;
         this.jlOutput = jlOutput;
@@ -256,6 +273,9 @@ class InputFilter extends DocumentFilter {
 @SuppressWarnings("serial")
 class PrecisionSlider extends JSlider {
 
+    /**
+     * PrecisionSlider constructor
+     */
     public PrecisionSlider() {
         Dictionary<Integer, JLabel> labels = new Hashtable<Integer, JLabel>();
         labels.put(1, new JLabel("half"));
@@ -310,9 +330,11 @@ class MenuBar extends JMenuBar {
     private JMenuItem jmiHowToUse = new JMenuItem("Calculator Manual");
 
     /**
-     * MenuBar constructor
+     * MenuBar constructor with access to Panel
+     * 
+     * @param panel Panel to be accessed by MenuBar
      */
-    public MenuBar() {
+    public MenuBar(final Panel panel) {
         add(jmMode);
         add(jmEdit);
         add(jmOption);
@@ -345,5 +367,15 @@ class MenuBar extends JMenuBar {
         jmHelp.add(jmiAboutCalc);
         jmHelp.add(jmiDeveloperContact);
         jmHelp.add(jmiHowToUse);
+
+        // Buttons
+        jmiClear.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.clear();
+            }
+
+        });
     }
 }
