@@ -84,6 +84,23 @@ class Panel extends JPanel {
     private JTextField jtfDecimal = new JTextField(20);
     private JTextField jtfBinary = new JTextField(44);
     private BinaryFractionCalc calc;
+    // String values
+    private String binString = "";
+    // Count bits
+    private int countSignBits = 0;
+    private int countExpBits = 0;
+    private int countFracBits = 0;
+    private int countSpaces = 0;
+    private JLabel jlBitInfo = new JLabel(
+            "Sign: " + countSignBits +
+            "   Exp: " + countExpBits +
+            "   Frac: " + countFracBits +
+            "   Spaces: " + countSpaces);
+    private int maxLength = 66;
+    private final int maxSign = 1;
+    private int maxExp = 11;
+    private int maxFrac = 52;
+    private boolean isInvalid = true;
 
     /**
      * Panel constructor
@@ -112,20 +129,37 @@ class Panel extends JPanel {
         container3.add(jtfDecimal);
         jpRightInUpper.add(container3);
 
-        JPanel jpLower = new JPanel(new GridLayout(2,1));
+        JPanel jpLower = new JPanel(new GridLayout(4,1));
         jpLower.setBorder(new TitledBorder("IEEE 754 Binary Representation"));
         add(jpLower);
 
         JPanel container4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         //jtfBinary.setEditable(false);
         container4.add(jtfBinary);
+        JPanel container5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        container5.add(jlBitInfo);
         jpLower.add(container4);
+        jpLower.add(container5);
 
         /* Detect changes in Bit-Mode and perform new calculation */
         jsBitMode.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(ChangeEvent e) {
+                if (jsBitMode.getValue() == 1) {
+                    maxLength = 18;
+                    maxExp = 5;
+                    maxFrac = 10;
+                } else if (jsBitMode.getValue() == 2) {
+                    maxLength = 34;
+                    maxExp = 8;
+                    maxFrac = 23;
+                } else {
+                    maxLength = 66;
+                    maxExp = 11;
+                    maxFrac = 52;
+                }
                 convertToBits();
             }
         });
@@ -148,6 +182,23 @@ class Panel extends JPanel {
             }
         });
 
+        jtfBinary.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                countBits();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                countBits();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
+
+        });
 
         /* Unfinished Implementation of DocumentFilter */
 
@@ -166,6 +217,75 @@ class Panel extends JPanel {
     }
 
     /**
+     * Determine if binary number is invalid
+     */
+    private void countBits() {
+        //int bitGroup = 1;
+        int index = 0;
+        int length = jtfBinary.getText().length();
+        binString = jtfBinary.getText();
+        countSignBits = 0;
+        countExpBits = 0;
+        countFracBits = 0;
+        countSpaces = 0;
+
+        if (length > maxLength) {
+            isInvalid = true;
+        } else {
+            isInvalid = false;
+        }
+
+        while (isInvalid == false && index < length) {
+            if (binString.charAt(index) == '1' || binString.charAt(index) == '0') {
+                switch (countSpaces) {
+                    case 0:
+                        countSignBits++;
+                        if (countSignBits > maxSign) {
+                            isInvalid = true;
+                        }
+                        break;
+                    case 1:
+                        countExpBits++;
+                        if (countExpBits > maxExp) {
+                            isInvalid = true;
+                        }
+                        break;
+                    case 2:
+                        countFracBits++;
+                        if (countFracBits > maxFrac) {
+                            isInvalid = true;
+                        }
+                        break;
+                    default:
+                        isInvalid = true;
+                        break;
+                }
+            }
+            else if (binString.charAt(index) == ' ' && countSpaces < 2) {
+                if (index != 0 && binString.charAt(index-1) == ' ') {
+                    isInvalid = true;
+                }
+                countSpaces++;
+            } else {
+                isInvalid = true;
+            }
+            index++;
+
+        }
+
+        if (isInvalid == true) {
+            jlBitInfo.setText("INVALID BINARY NUMBER");
+        } else {
+            jlBitInfo.setText(
+                    "Sign: " + countSignBits +
+                    "   Exp: " + countExpBits +
+                    "   Frac: " + countFracBits +
+                    "   Spaces: " + countSpaces);
+        }
+
+    }
+
+    /**
      * Instructs the calculator to convert the bits based on jtfInput's value
      */
     private void convertToBits() {
@@ -179,7 +299,7 @@ class Panel extends JPanel {
                 checkFloat = new Double(jtfDecimal.getText());
             } catch (NumberFormatException ex) {
                 validNumber = false;
-                jtfBinary.setText(" ");
+                jtfBinary.setText("");
             }
 
             if (validNumber) {
@@ -193,6 +313,8 @@ class Panel extends JPanel {
                     jtfBinary.setText(calc.getDouble());
                 }
             }
+        } else {
+            jtfBinary.setText("");
         }
     }
 }
