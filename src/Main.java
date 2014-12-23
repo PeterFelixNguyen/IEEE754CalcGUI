@@ -19,6 +19,8 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -101,6 +103,12 @@ class Panel extends JPanel {
     private int maxExp = 11;
     private int maxFrac = 52;
     private boolean isInvalid = true;
+    // Binary values
+    private String signBit = "";
+    private String expBits = "";
+    private String fracBits = "";
+    // Experimental
+    private String activeTextField = "jtfDecimal";
 
     /**
      * Panel constructor
@@ -164,21 +172,50 @@ class Panel extends JPanel {
             }
         });
 
+        jtfDecimal.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                activeTextField = "jtfDecimal";
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+            }
+
+        });
+
         /* Automatically perform the calculation based on current value of text field */
         jtfDecimal.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                convertToBits();
+                if (activeTextField == "jtfDecimal") {
+                    convertToBits();
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                convertToBits();
+                if (activeTextField == "jtfDecimal") {
+                    convertToBits();
+                }
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
+            }
+        });
+
+        jtfBinary.addFocusListener(new FocusListener() {
+
+            @Override
+            public void focusGained(FocusEvent e) {
+                activeTextField = "jtfBinary";
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
             }
         });
 
@@ -187,11 +224,17 @@ class Panel extends JPanel {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 countBits();
+                if (activeTextField == "jtfBinary") {
+                    jtfDecimal.setText(jtfBinary.getText());
+                }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 countBits();
+                if (activeTextField == "jtfBinary") {
+                    jtfDecimal.setText(jtfBinary.getText());
+                }
             }
 
             @Override
