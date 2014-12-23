@@ -1,18 +1,29 @@
-//This version attempts to solve the big number issue by doing BigDecimal calculations
+/**
+ * Copyright 2014 Latrice Sebastian, Peter "Felix" Nguyen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import java.math.BigDecimal;
 
 public class BinaryFractionCalc {
     private BigDecimal fraction;
-    private long intPart;
+    private int intPart;
     private int exponent = 0;
-    private BigDecimal fractionPart; // this variable has been changed to a BigDecimal object
+    private double fractionPart;
     private String signBit;
     private String doubleFracStr = "";
     private String singleFracStr = "";
     private String halfFracStr = "";
-    private String expBits;
-    private String fracBits;
-    private String decNum;
     private final int DOUBLE_BIAS = 1023;
     private final int SINGLE_BIAS = 127;
     private final int HALF_BIAS = 15;
@@ -28,22 +39,7 @@ public class BinaryFractionCalc {
         signBit = (number < 0) ? "1 " : "0 ";
         if (signBit.equals("1 "))
             number = number * -1;
-        fraction = BigDecimal.valueOf(number);
-    }
-
-    public BinaryFractionCalc(String sign, String exp, String frac){
-        signBit = sign;
-        expBits = exp;
-        fracBits = frac;
-    }
-
-    public String getDecimal(){
-        calculateDecimal(signBit, expBits, fracBits);
-        return decNum;
-    }
-
-    private void calculateDecimal(String sign, String exp, String frac){
-
+        fraction =  BigDecimal.valueOf(number);
     }
 
     public String getDouble() {
@@ -63,18 +59,15 @@ public class BinaryFractionCalc {
 
     // Includes Peter's code changes, but uses constants to work for
     // singles,doubles and half. Also the function returns a String
-    //Includes more BigDecimal calculations in attempt to solve a current issue
     private String helpFunction(BigDecimal number, String fracStr, int bias,
             int bits, int expBits) {
-        intPart = number.longValue();
+        intPart = number.intValue();
         boolean zero = false;
 
         if (intPart == 0) {
             zero = true;
         }
-        double temporary = number.floatValue() - intPart;
-        fractionPart = new BigDecimal(temporary);
-
+        fractionPart = number.floatValue() - intPart;
         String localStr = "";
 
         if (!zero) {
@@ -85,12 +78,8 @@ public class BinaryFractionCalc {
 
             localStr += ".";
             for (int fracBits = bits; fracBits > 0; fracBits--) {
-                int localNum =
-                        ((fractionPart.multiply(BigDecimal.valueOf(2)))
-                                .intValue());
-                fractionPart =
-                        (fractionPart.multiply(BigDecimal.valueOf(2)).
-                                subtract(BigDecimal.valueOf(localNum)));
+                int localNum = (int) (fractionPart * 2);
+                fractionPart = (fractionPart * 2) - localNum;
                 localStr += localNum;
             }
 
@@ -116,12 +105,8 @@ public class BinaryFractionCalc {
 
             String localFrac = "";
             for (int fracBits = bits; fracBits > 0; fracBits--) {
-                int localNum =
-                        ((fractionPart.multiply(BigDecimal.valueOf(2)))
-                                .intValue());
-                fractionPart =
-                        (fractionPart.multiply(BigDecimal.valueOf(2)).
-                                subtract(BigDecimal.valueOf(localNum)));
+                int localNum = (int) (fractionPart * 2);
+                fractionPart = (fractionPart * 2) - localNum;
                 localFrac += localNum;
             }
 
