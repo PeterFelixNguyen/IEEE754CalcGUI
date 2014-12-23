@@ -104,8 +104,11 @@ class Panel extends JPanel {
     private int maxFrac = 52;
     private boolean isInvalid = true;
     // Binary values
+    @SuppressWarnings("unused")
     private String signBit = "";
+    @SuppressWarnings("unused")
     private String expBits = "";
+    @SuppressWarnings("unused")
     private String fracBits = "";
     // Experimental
     private String activeTextField = "jtfDecimal";
