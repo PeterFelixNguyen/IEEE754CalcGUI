@@ -81,8 +81,8 @@ class Frame extends JFrame {
 @SuppressWarnings("serial")
 class Panel extends JPanel {
     private PrecisionSlider jsBitMode = new PrecisionSlider();
-    private JTextField jtfInput = new JTextField(20);
-    private JTextField jlOutput = new JTextField(44);
+    private JTextField jtfDecimal = new JTextField(20);
+    private JTextField jtfBinary = new JTextField(44);
     private BinaryFractionCalc calc;
 
     /**
@@ -105,11 +105,11 @@ class Panel extends JPanel {
 
         JPanel jpRightInUpper = new JPanel();
         jpRightInUpper.setLayout(new BoxLayout(jpRightInUpper, BoxLayout.Y_AXIS));
-        jpRightInUpper.setBorder(new TitledBorder("Enter Decimal Value"));
+        jpRightInUpper.setBorder(new TitledBorder("Decimal Value"));
         jpUpper.add(jpRightInUpper);
 
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        container3.add(jtfInput);
+        container3.add(jtfDecimal);
         jpRightInUpper.add(container3);
 
         JPanel jpLower = new JPanel(new GridLayout(2,1));
@@ -117,8 +117,8 @@ class Panel extends JPanel {
         add(jpLower);
 
         JPanel container4 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        jlOutput.setEditable(false);
-        container4.add(jlOutput);
+        //jtfBinary.setEditable(false);
+        container4.add(jtfBinary);
         jpLower.add(container4);
 
         /* Detect changes in Bit-Mode and perform new calculation */
@@ -131,7 +131,7 @@ class Panel extends JPanel {
         });
 
         /* Automatically perform the calculation based on current value of text field */
-        jtfInput.getDocument().addDocumentListener(new DocumentListener() {
+        jtfDecimal.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -161,36 +161,36 @@ class Panel extends JPanel {
      * Clears the panel's input and output components
      */
     public void clear() {
-        jtfInput.setText("");
-        jlOutput.setText("");
+        jtfDecimal.setText("");
+        jtfBinary.setText("");
     }
 
     /**
      * Instructs the calculator to convert the bits based on jtfInput's value
      */
     private void convertToBits() {
-        if (jtfInput.getText().length() > 0) {
+        if (jtfDecimal.getText().length() > 0) {
 
             @SuppressWarnings("unused")
             double checkFloat;
             boolean validNumber = true;
 
             try {
-                checkFloat = new Double(jtfInput.getText());
+                checkFloat = new Double(jtfDecimal.getText());
             } catch (NumberFormatException ex) {
                 validNumber = false;
-                jlOutput.setText(" ");
+                jtfBinary.setText(" ");
             }
 
             if (validNumber) {
-                calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
+                calc = new BinaryFractionCalc(new Double(jtfDecimal.getText()));
 
                 if (jsBitMode.getValue() == 1) {
-                    jlOutput.setText(calc.getHalf());
+                    jtfBinary.setText(calc.getHalf());
                 } else if (jsBitMode.getValue() == 2) {
-                    jlOutput.setText(calc.getSingle());
+                    jtfBinary.setText(calc.getSingle());
                 } else {
-                    jlOutput.setText(calc.getDouble());
+                    jtfBinary.setText(calc.getDouble());
                 }
             }
         }
