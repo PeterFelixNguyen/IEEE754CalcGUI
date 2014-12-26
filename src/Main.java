@@ -21,6 +21,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -35,6 +37,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
@@ -82,9 +85,12 @@ class Frame extends JFrame {
  */
 @SuppressWarnings("serial")
 class Panel extends JPanel {
+    // GUI components
     private PrecisionSlider jsBitMode = new PrecisionSlider();
-    private JTextField jtfDecimal = new JTextField(20);
-    private JTextField jtfBinary = new JTextField(44);
+    private TextField jtfDecimal = new TextField(20);
+    private TextField jtfBinary = new TextField(44);
+    private TextMenu textMenu;
+    // Calculator(s)
     private BinaryFractionCalc calc;
     // String values
     private String binString = "";
@@ -180,6 +186,7 @@ class Panel extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 activeTextField = "jtfDecimal";
+                //System.out.println("jtfDecimal focused");
             }
 
             @Override
@@ -215,6 +222,7 @@ class Panel extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 activeTextField = "jtfBinary";
+                //System.out.println("jtfBinary focused");
             }
 
             @Override
@@ -228,7 +236,7 @@ class Panel extends JPanel {
             public void insertUpdate(DocumentEvent e) {
                 countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtfDecimal.setText(jtfBinary.getText());
+                    jtfDecimal.setText(jtfBinary.getEditText());
                 }
             }
 
@@ -236,7 +244,7 @@ class Panel extends JPanel {
             public void removeUpdate(DocumentEvent e) {
                 countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtfDecimal.setText(jtfBinary.getText());
+                    jtfDecimal.setText(jtfBinary.getEditText());
                 }
             }
 
@@ -244,6 +252,80 @@ class Panel extends JPanel {
             public void changedUpdate(DocumentEvent e) {
             }
 
+        });
+
+        jtfDecimal.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            private void checkPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    if (jtfDecimal.getSelectedText() != null && jtfDecimal.getSelectedText().length() > 0) {
+                        //textMenu.SetTextSelected(true);
+                    } else {
+                        //textMenu.SetTextSelected(false);
+                    }
+                    textMenu = new TextMenu(jtfDecimal);
+                    textMenu.show(jtfDecimal, e.getX(), e.getY());
+                    textMenu.getClearItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            //extended instructions
+                            jtfBinary.setText("");
+                        }
+                    });;
+                }
+            }
+        });
+
+        jtfBinary.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                checkPopup(e);
+            }
+
+            private void checkPopup(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    if (jtfBinary.getSelectedText() != null && jtfBinary.getSelectedText().length() > 0) {
+                        //textMenu.SetTextSelected(true);
+                    } else {
+                        //textMenu.SetTextSelected(false);
+                    }
+                    textMenu = new TextMenu(jtfBinary);
+                    textMenu.show(jtfBinary, e.getX(), e.getY());
+                    textMenu.getClearItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            //extended instructions
+                            jtfDecimal.setText("");
+                        }
+                    });;
+                }
+            }
         });
 
         /* Unfinished Implementation of DocumentFilter */
@@ -258,8 +340,8 @@ class Panel extends JPanel {
      * Clears the panel's input and output components
      */
     public void clear() {
-        jtfDecimal.setText("");
-        jtfBinary.setText("");
+        jtfDecimal.clearEditText();
+        jtfBinary.clearEditText();
     }
 
     /**
@@ -268,8 +350,8 @@ class Panel extends JPanel {
     private void countBits() {
         //int bitGroup = 1;
         int index = 0;
-        int length = jtfBinary.getText().length();
-        binString = jtfBinary.getText();
+        int length = jtfBinary.getEditText().length();
+        binString = jtfBinary.getEditText();
         countSignBits = 0;
         countExpBits = 0;
         countFracBits = 0;
@@ -362,6 +444,34 @@ class Panel extends JPanel {
         } else {
             jtfBinary.setText("");
         }
+    }
+}
+
+@SuppressWarnings("serial")
+class TextMenu extends JPopupMenu {
+    private JMenuItem jmiClear = new JMenuItem("Clear");
+    private JMenuItem jmiCopy = new JMenuItem("Copy");
+    private JMenuItem jmiCut = new JMenuItem("Cut");
+    private JMenuItem jmiPaste = new JMenuItem("Paste");
+
+    public TextMenu (final Editable editable) {
+        add(jmiClear);
+        add(jmiCut);
+        add(jmiCopy);
+        add(jmiPaste);
+
+        jmiClear.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editable.requestEditFocus();
+                editable.clearEditText();
+            }
+        });
+    }
+
+    public JMenuItem getClearItem() {
+        return jmiClear;
     }
 }
 
