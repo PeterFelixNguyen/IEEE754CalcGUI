@@ -242,17 +242,15 @@ class Panel extends JPanel {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtaDecimal.setText(jtfBinary.getEditText());
+                    countBits();
                 }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtaDecimal.setText(jtfBinary.getEditText());
+                    countBits();
                 }
             }
 
@@ -411,12 +409,14 @@ class Panel extends JPanel {
 
         if (isInvalid == true) {
             jlNumberInfo.setText("INVALID BINARY NUMBER");
+            jtaDecimal.setText("");
         } else {
             jlNumberInfo.setText(
                     "Sign (" + countSignBits + ")" +
                             "    Exponent (" + countExpBits + ")" +
                             "    Fraction (" + countFracBits + ")" +
                             "    Spaces (" + countSpaces+ ")");
+            jtaDecimal.setText(jtfBinary.getEditText());
         }
 
     }
