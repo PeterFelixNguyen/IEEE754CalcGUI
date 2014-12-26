@@ -39,6 +39,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -87,7 +88,8 @@ class Frame extends JFrame {
 class Panel extends JPanel {
     // GUI components
     private PrecisionSlider jsBitMode = new PrecisionSlider();
-    private TextField jtfDecimal = new TextField(20);
+    private TextArea jtaDecimal = new TextArea(3, 20);
+    //private TextField jtfDecimal = new TextField(20);
     private TextField jtfBinary = new TextField(44);
     private TextMenu textMenu;
     // Calculator(s)
@@ -99,11 +101,11 @@ class Panel extends JPanel {
     private int countExpBits = 0;
     private int countFracBits = 0;
     private int countSpaces = 0;
-    private JLabel jlBitInfo = new JLabel(
-            "Sign: " + countSignBits +
-            "   Exp: " + countExpBits +
-            "   Frac: " + countFracBits +
-            "   Spaces: " + countSpaces);
+    private JLabel jlNumberInfo = new JLabel(
+            "Sign (" + countSignBits + ")" +
+                    "    Exponent (" + countExpBits + ")" +
+                    "    Fraction (" + countFracBits + ")" +
+                    "    Spaces (" + countSpaces+ ")");
     private int maxLength = 66;
     private final int maxSign = 1;
     private int maxExp = 11;
@@ -143,7 +145,13 @@ class Panel extends JPanel {
         jpUpper.add(jpRightInUpper);
 
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        container3.add(jtfDecimal);
+        //container3.add(jtfDecimal);
+        jtaDecimal.setLineWrap(true);
+        jtaDecimal.setWrapStyleWord(true);
+        JScrollPane jspDecimal = new JScrollPane(jtaDecimal);
+        //jtaDecimal.setBorder(new LineBorder(Color.BLACK, 1));
+        container3.add(jspDecimal);
+
         jpRightInUpper.add(container3);
 
         JPanel jpLower = new JPanel(new GridLayout(4,1));
@@ -155,7 +163,7 @@ class Panel extends JPanel {
         container4.add(jtfBinary);
         JPanel container5 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        container5.add(jlBitInfo);
+        container5.add(jlNumberInfo);
         jpLower.add(container4);
         jpLower.add(container5);
 
@@ -181,7 +189,7 @@ class Panel extends JPanel {
             }
         });
 
-        jtfDecimal.addFocusListener(new FocusListener() {
+        jtaDecimal.addFocusListener(new FocusListener() {
 
             @Override
             public void focusGained(FocusEvent e) {
@@ -196,7 +204,7 @@ class Panel extends JPanel {
         });
 
         /* Automatically perform the calculation based on current value of text field */
-        jtfDecimal.getDocument().addDocumentListener(new DocumentListener() {
+        jtaDecimal.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -236,7 +244,7 @@ class Panel extends JPanel {
             public void insertUpdate(DocumentEvent e) {
                 countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtfDecimal.setText(jtfBinary.getEditText());
+                    jtaDecimal.setText(jtfBinary.getEditText());
                 }
             }
 
@@ -244,7 +252,7 @@ class Panel extends JPanel {
             public void removeUpdate(DocumentEvent e) {
                 countBits();
                 if (activeTextField == "jtfBinary") {
-                    jtfDecimal.setText(jtfBinary.getEditText());
+                    jtaDecimal.setText(jtfBinary.getEditText());
                 }
             }
 
@@ -254,7 +262,7 @@ class Panel extends JPanel {
 
         });
 
-        jtfDecimal.addMouseListener(new MouseAdapter() {
+        jtaDecimal.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 checkPopup(e);
@@ -272,13 +280,13 @@ class Panel extends JPanel {
 
             private void checkPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    if (jtfDecimal.getSelectedText() != null && jtfDecimal.getSelectedText().length() > 0) {
+                    if (jtaDecimal.getSelectedText() != null && jtaDecimal.getSelectedText().length() > 0) {
                         //textMenu.SetTextSelected(true);
                     } else {
                         //textMenu.SetTextSelected(false);
                     }
-                    textMenu = new TextMenu(jtfDecimal);
-                    textMenu.show(jtfDecimal, e.getX(), e.getY());
+                    textMenu = new TextMenu(jtaDecimal);
+                    textMenu.show(jtaDecimal, e.getX(), e.getY());
                     textMenu.getClearItem().addActionListener(new ActionListener() {
 
                         @Override
@@ -321,7 +329,7 @@ class Panel extends JPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             //extended instructions
-                            jtfDecimal.setText("");
+                            jtaDecimal.setText("");
                         }
                     });;
                 }
@@ -340,7 +348,7 @@ class Panel extends JPanel {
      * Clears the panel's input and output components
      */
     public void clear() {
-        jtfDecimal.clearEditText();
+        jtaDecimal.clearEditText();
         jtfBinary.clearEditText();
     }
 
@@ -402,13 +410,13 @@ class Panel extends JPanel {
         }
 
         if (isInvalid == true) {
-            jlBitInfo.setText("INVALID BINARY NUMBER");
+            jlNumberInfo.setText("INVALID BINARY NUMBER");
         } else {
-            jlBitInfo.setText(
-                    "Sign: " + countSignBits +
-                    "   Exp: " + countExpBits +
-                    "   Frac: " + countFracBits +
-                    "   Spaces: " + countSpaces);
+            jlNumberInfo.setText(
+                    "Sign (" + countSignBits + ")" +
+                            "    Exponent (" + countExpBits + ")" +
+                            "    Fraction (" + countFracBits + ")" +
+                            "    Spaces (" + countSpaces+ ")");
         }
 
     }
@@ -417,21 +425,22 @@ class Panel extends JPanel {
      * Instructs the calculator to convert the bits based on jtfInput's value
      */
     private void convertToBits() {
-        if (jtfDecimal.getText().length() > 0) {
+        if (jtaDecimal.getText().length() > 0) {
 
             @SuppressWarnings("unused")
             double checkFloat;
             boolean validNumber = true;
 
             try {
-                checkFloat = new Double(jtfDecimal.getText());
+                checkFloat = new Double(jtaDecimal.getText());
             } catch (NumberFormatException ex) {
                 validNumber = false;
                 jtfBinary.setText("");
+                jlNumberInfo.setText("INVALID DECIMAL NUMBER");
             }
 
             if (validNumber) {
-                calc = new BinaryFractionCalc(new Double(jtfDecimal.getText()));
+                calc = new BinaryFractionCalc(new Double(jtaDecimal.getText()));
 
                 if (jsBitMode.getValue() == 1) {
                     jtfBinary.setText(calc.getHalf());
@@ -581,11 +590,6 @@ class PrecisionSlider extends JSlider {
  */
 @SuppressWarnings("serial")
 class MenuBar extends JMenuBar {
-    // Mode items
-    private JMenu jmMode = new JMenu("Mode");
-    private JRadioButtonMenuItem jrbmiDecToBin = new JRadioButtonMenuItem("Decimal to Binary", null, true);
-    private JRadioButtonMenuItem jrbmiBinToDec = new JRadioButtonMenuItem("Binary to Decimal", null, false);
-
     // Edit items
     private JMenu jmEdit = new JMenu("Edit");
     private JMenuItem jmiClear = new JMenuItem("Clear");
@@ -594,12 +598,12 @@ class MenuBar extends JMenuBar {
     private JMenuItem jmiPaste = new JMenuItem("Paste");
 
     // Option items
-    private JMenu jmOption = new JMenu("Options");
+    private JMenu jmOptions = new JMenu("Options");
     private JMenu jmGenericMenu = new JMenu("Generic Menu");
     private JRadioButtonMenuItem jmiItem1 = new JRadioButtonMenuItem("Item 1", null, true);
     private JRadioButtonMenuItem jmiItem2 = new JRadioButtonMenuItem("Item 2", null, false);
-    private JCheckBoxMenuItem jcbmiTrailing = new JCheckBoxMenuItem("Remove trailing zeroes");
-    private JCheckBoxMenuItem jcbmiSpaces = new JCheckBoxMenuItem("Add space delimiters");
+    private JCheckBoxMenuItem jcbmiTrailing = new JCheckBoxMenuItem("Keep trailing zeroes", null, true);
+    private JCheckBoxMenuItem jcbmiSpaces = new JCheckBoxMenuItem("Use space delimiters", null, true);
 
     // Help ITEMS
     private JMenu jmHelp = new JMenu("Help");
@@ -613,17 +617,9 @@ class MenuBar extends JMenuBar {
      * @param panel Panel to be accessed by MenuBar
      */
     public MenuBar(final Panel panel) {
-        add(jmMode);
+        add(jmOptions);
         add(jmEdit);
-        add(jmOption);
         add(jmHelp);
-
-        // Mode items
-        ButtonGroup modeGroup = new ButtonGroup();
-        modeGroup.add(jrbmiDecToBin);
-        modeGroup.add(jrbmiBinToDec);
-        jmMode.add(jrbmiDecToBin);
-        jmMode.add(jrbmiBinToDec);
 
         // Edit items
         jmEdit.add(jmiClear);
@@ -635,11 +631,11 @@ class MenuBar extends JMenuBar {
         ButtonGroup showTrailFracGroup = new ButtonGroup();
         showTrailFracGroup.add(jmiItem1);
         showTrailFracGroup.add(jmiItem2);
-        jmOption.add(jmGenericMenu);
+        //jmOptions.add(jmGenericMenu);
         jmGenericMenu.add(jmiItem1);
         jmGenericMenu.add(jmiItem2);
-        jmOption.add(jcbmiTrailing);
-        jmOption.add(jcbmiSpaces);
+        jmOptions.add(jcbmiTrailing);
+        jmOptions.add(jcbmiSpaces);
 
         // Help items
         jmHelp.add(jmiAboutCalc);
