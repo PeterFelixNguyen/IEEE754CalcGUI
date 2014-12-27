@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+
 import javax.swing.JTextField;
 
 /**
  * Custom JTextField that implement editable
  */
 @SuppressWarnings("serial")
-public class TextField extends JTextField implements Editable {
+public class TextField extends JTextField implements Editable, ClipboardOwner {
 
     @SuppressWarnings("unused")
     private TextField() {
@@ -58,5 +62,10 @@ public class TextField extends JTextField implements Editable {
     @Override
     public void clearEditText() {
         setText("");
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        // TODO Auto-generated method stub
     }
 }

@@ -17,10 +17,14 @@
 /**
  * Custom JTextArea that implement editable
  */
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
+
 import javax.swing.JTextArea;
 
 @SuppressWarnings("serial")
-public class TextArea extends JTextArea implements Editable {
+public class TextArea extends JTextArea implements Editable, ClipboardOwner {
 
     @SuppressWarnings("unused")
     private TextArea() {
@@ -61,5 +65,10 @@ public class TextArea extends JTextArea implements Editable {
     @Override
     public void clearEditText() {
         setText("");
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        // TODO Auto-generated method stub
     }
 }

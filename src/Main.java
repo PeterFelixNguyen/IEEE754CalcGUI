@@ -19,6 +19,7 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
@@ -297,20 +298,38 @@ class Panel extends JPanel {
                         }
                     });
 
+                    textMenu.getCutItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
+                            clipboard.setContents(stringSelection, jtaDecimal);
+                            jtaDecimal.replaceSelection("");
+                        }
+                    });
+
+                    textMenu.getCopyItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
+                            clipboard.setContents(stringSelection, jtaDecimal);
+                        }
+                    });
+
+                    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            String result = "";
-                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            String cbString = "";
                             //odd: the Object param of getContents is not currently used
                             Transferable contents = clipboard.getContents(null);
                             boolean hasTransferableText =
                                     (contents != null) &&
-                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor)
-                                    ;
+                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor);
                             if (hasTransferableText) {
                                 try {
-                                    result = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                                    cbString = (String)contents.getTransferData(DataFlavor.stringFlavor);
                                 }
                                 catch (UnsupportedFlavorException | IOException ex){
                                     System.out.println(ex);
@@ -320,9 +339,9 @@ class Panel extends JPanel {
                             try {
                                 // need to do text selection
                                 if (jtaDecimal.getSelectedText() == null) {
-                                    jtaDecimal.getDocument().insertString(jtaDecimal.getCaretPosition(), result, null);
+                                    jtaDecimal.getDocument().insertString(jtaDecimal.getCaretPosition(), cbString, null);
                                 } else {
-                                    jtaDecimal.replaceSelection(result);
+                                    jtaDecimal.replaceSelection(cbString);
                                 }
                             }
                             catch (BadLocationException e1) {
@@ -368,21 +387,38 @@ class Panel extends JPanel {
                         }
                     });
 
+                    textMenu.getCutItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
+                            clipboard.setContents(stringSelection, jtaDecimal);
+                            jtaDecimal.replaceSelection("");
+                        }
+                    });
+
+                    textMenu.getCopyItem().addActionListener(new ActionListener() {
+
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            StringSelection stringSelection = new StringSelection(jtfBinary.getSelectedText());
+                            clipboard.setContents(stringSelection, jtfBinary);
+                        }
+                    });
+
                     // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            String result = "";
-                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            String cbString = "";
                             //odd: the Object param of getContents is not currently used
                             Transferable contents = clipboard.getContents(null);
                             boolean hasTransferableText =
                                     (contents != null) &&
-                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor)
-                                    ;
+                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor);
                             if (hasTransferableText) {
                                 try {
-                                    result = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                                    cbString = (String)contents.getTransferData(DataFlavor.stringFlavor);
                                 }
                                 catch (UnsupportedFlavorException | IOException ex){
                                     System.out.println(ex);
@@ -392,10 +428,10 @@ class Panel extends JPanel {
                             try {
                                 // need to do text selection
                                 if (jtfBinary.getSelectedText() == null) {
-                                    jtfBinary.getDocument().insertString(jtfBinary.getCaretPosition(), result, null);
+                                    jtfBinary.getDocument().insertString(jtfBinary.getCaretPosition(), cbString, null);
                                 } else {
                                     //jtfBinary.replaceRange(result, jtfBinary.getSelectionStart(), jtfBinary.getSelectionEnd());
-                                    jtfBinary.replaceSelection(result);
+                                    jtfBinary.replaceSelection(cbString);
                                 }
                             }
                             catch (BadLocationException e1) {
@@ -552,6 +588,22 @@ class TextMenu extends JPopupMenu {
             }
         });
 
+        jmiCut.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        jmiCopy.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // leave empty, implement outside
+            }
+        });
+
         jmiPaste.addActionListener(new ActionListener() {
 
             @Override
@@ -563,6 +615,14 @@ class TextMenu extends JPopupMenu {
 
     public JMenuItem getClearItem() {
         return jmiClear;
+    }
+
+    public JMenuItem getCutItem() {
+        return jmiCut;
+    }
+
+    public JMenuItem getCopyItem() {
+        return jmiCopy;
     }
 
     public JMenuItem getPasteItem() {
