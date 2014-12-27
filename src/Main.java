@@ -29,6 +29,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -550,7 +551,7 @@ class Panel extends JPanel {
             }
 
             if (validNumber) {
-                calc = new BinaryFractionCalc(new Double(jtaDecimal.getText()));
+                calc = new BinaryFractionCalc(new BigDecimal(jtaDecimal.getText()));
 
                 if (jsBitMode.getValue() == 1) {
                     jtfBinary.setText(calc.getHalf());
@@ -664,7 +665,7 @@ class InputFilter extends DocumentFilter {
     }
 
     public void processBits() {
-        BinaryFractionCalc calc = new BinaryFractionCalc(new Double(jtfInput.getText()));
+        BinaryFractionCalc calc = new BinaryFractionCalc(new BigDecimal(jtfInput.getText()));
         if (jsBitMode.getValue() == 1) {
             jlOutput.setText(calc.getHalf());
         } else if (jsBitMode.getValue() == 2) {
