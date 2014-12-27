@@ -17,12 +17,17 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.regex.Matcher;
@@ -89,9 +94,11 @@ class Panel extends JPanel {
     // GUI components
     private PrecisionSlider jsBitMode = new PrecisionSlider();
     private TextArea jtaDecimal = new TextArea(3, 20);
-    //private TextField jtfDecimal = new TextField(20);
     private TextField jtfBinary = new TextField(44);
     private TextMenu textMenu;
+    // Clipboard
+    private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
     // Calculator(s)
     private BinaryFractionCalc calc;
     // String values
@@ -288,7 +295,37 @@ class Panel extends JPanel {
                             //extended instructions
                             jtfBinary.setText("");
                         }
-                    });;
+                    });
+
+                    textMenu.getPasteItem().addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String result = "";
+                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            //odd: the Object param of getContents is not currently used
+                            Transferable contents = clipboard.getContents(null);
+                            boolean hasTransferableText =
+                                    (contents != null) &&
+                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor)
+                                    ;
+                            if (hasTransferableText) {
+                                try {
+                                    result = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                                }
+                                catch (UnsupportedFlavorException | IOException ex){
+                                    System.out.println(ex);
+                                    ex.printStackTrace();
+                                }
+                            }
+                            try {
+                                // need to do text selection
+                                jtaDecimal.getDocument().insertString(jtfBinary.getText().length(), result, null);
+                            }
+                            catch (BadLocationException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -318,14 +355,45 @@ class Panel extends JPanel {
                         textMenu.notifyTextSelected(false);
                     }
                     textMenu.show(jtfBinary, e.getX(), e.getY());
-                    textMenu.getClearItem().addActionListener(new ActionListener() {
 
+                    textMenu.getClearItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             //extended instructions
                             jtaDecimal.setText("");
                         }
-                    });;
+                    });
+
+                    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
+                    textMenu.getPasteItem().addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            String result = "";
+                            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                            //odd: the Object param of getContents is not currently used
+                            Transferable contents = clipboard.getContents(null);
+                            boolean hasTransferableText =
+                                    (contents != null) &&
+                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor)
+                                    ;
+                            if (hasTransferableText) {
+                                try {
+                                    result = (String)contents.getTransferData(DataFlavor.stringFlavor);
+                                }
+                                catch (UnsupportedFlavorException | IOException ex){
+                                    System.out.println(ex);
+                                    ex.printStackTrace();
+                                }
+                            }
+                            try {
+                                // need to do text selection
+                                jtfBinary.getDocument().insertString(jtfBinary.getText().length(), result, null);
+                            }
+                            catch (BadLocationException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -474,10 +542,22 @@ class TextMenu extends JPopupMenu {
                 editable.clearEditText();
             }
         });
+
+        jmiPaste.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // leave empty, implement outside
+            }
+        });
     }
 
     public JMenuItem getClearItem() {
         return jmiClear;
+    }
+
+    public JMenuItem getPasteItem() {
+        return jmiPaste;
     }
 
     public void notifyTextSelected(boolean state) {
