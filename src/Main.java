@@ -319,7 +319,11 @@ class Panel extends JPanel {
                             }
                             try {
                                 // need to do text selection
-                                jtaDecimal.getDocument().insertString(jtfBinary.getText().length(), result, null);
+                                if (jtaDecimal.getSelectedText() == null) {
+                                    jtaDecimal.getDocument().insertString(jtaDecimal.getCaretPosition(), result, null);
+                                } else {
+                                    jtaDecimal.replaceSelection(result);
+                                }
                             }
                             catch (BadLocationException e1) {
                                 e1.printStackTrace();
@@ -387,7 +391,12 @@ class Panel extends JPanel {
                             }
                             try {
                                 // need to do text selection
-                                jtfBinary.getDocument().insertString(jtfBinary.getText().length(), result, null);
+                                if (jtfBinary.getSelectedText() == null) {
+                                    jtfBinary.getDocument().insertString(jtfBinary.getCaretPosition(), result, null);
+                                } else {
+                                    //jtfBinary.replaceRange(result, jtfBinary.getSelectionStart(), jtfBinary.getSelectionEnd());
+                                    jtfBinary.replaceSelection(result);
+                                }
                             }
                             catch (BadLocationException e1) {
                                 e1.printStackTrace();
