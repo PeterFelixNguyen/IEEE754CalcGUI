@@ -1,3 +1,5 @@
+import java.awt.datatransfer.ClipboardOwner;
+
 /**
  * Copyright 2014 Latrice Sebastian, Peter "Felix" Nguyen
  *
@@ -17,8 +19,10 @@
 /**
  * Interface intended for GUI components that can be edited.
  */
-public interface Editable {
-    public void requestEditFocus();
-    public String getEditText();
-    public void clearEditText();
+public interface Editable extends ClipboardOwner {
+    public void requestFocus();
+    public String getText();
+    public String getSelectedText();
+    public void clearText();
+    public void replaceSelection(String string);
 }

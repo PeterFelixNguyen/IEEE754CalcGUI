@@ -79,6 +79,7 @@ class Frame extends JFrame {
      */
     public Frame() {
         add(panel);
+        //MenuBar menuBar = new MenuBar(panel);
         setJMenuBar(new MenuBar(panel));
         setTitle("IEEE 754 Converter");
         setSize(520, 280);
@@ -100,7 +101,6 @@ class Panel extends JPanel {
     private TextMenu textMenu;
     // Clipboard
     private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-
     // Calculator(s)
     private BinaryFractionCalc calc;
     // String values
@@ -128,7 +128,7 @@ class Panel extends JPanel {
     @SuppressWarnings("unused")
     private String fracBits = "";
     // Experimental
-    private String activeTextField = "jtfDecimal";
+    private String activeTextField = "jtaDecimal";
 
     /**
      * Panel constructor
@@ -154,11 +154,9 @@ class Panel extends JPanel {
         jpUpper.add(jpRightInUpper);
 
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        //container3.add(jtfDecimal);
         jtaDecimal.setLineWrap(true);
         jtaDecimal.setWrapStyleWord(true);
         JScrollPane jspDecimal = new JScrollPane(jtaDecimal);
-        //jtaDecimal.setBorder(new LineBorder(Color.BLACK, 1));
         container3.add(jspDecimal);
 
         jpRightInUpper.add(container3);
@@ -202,8 +200,7 @@ class Panel extends JPanel {
 
             @Override
             public void focusGained(FocusEvent e) {
-                activeTextField = "jtfDecimal";
-                //System.out.println("jtfDecimal focused");
+                activeTextField = "jtaDecimal";
             }
 
             @Override
@@ -217,14 +214,14 @@ class Panel extends JPanel {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (activeTextField == "jtfDecimal") {
+                if (activeTextField == "jtaDecimal") {
                     convertToBits();
                 }
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (activeTextField == "jtfDecimal") {
+                if (activeTextField == "jtaDecimal") {
                     convertToBits();
                 }
             }
@@ -239,7 +236,6 @@ class Panel extends JPanel {
             @Override
             public void focusGained(FocusEvent e) {
                 activeTextField = "jtfBinary";
-                //System.out.println("jtfBinary focused");
             }
 
             @Override
@@ -303,9 +299,7 @@ class Panel extends JPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
-                            clipboard.setContents(stringSelection, jtaDecimal);
-                            jtaDecimal.replaceSelection("");
+                            performCut(jtaDecimal);
                         }
                     });
 
@@ -323,7 +317,7 @@ class Panel extends JPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             String cbString = "";
-                            //odd: the Object param of getContents is not currently used
+
                             Transferable contents = clipboard.getContents(null);
                             boolean hasTransferableText =
                                     (contents != null) &&
@@ -392,9 +386,7 @@ class Panel extends JPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
-                            clipboard.setContents(stringSelection, jtaDecimal);
-                            jtaDecimal.replaceSelection("");
+                            performCut(jtfBinary);
                         }
                     });
 
@@ -412,7 +404,7 @@ class Panel extends JPanel {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             String cbString = "";
-                            //odd: the Object param of getContents is not currently used
+
                             Transferable contents = clipboard.getContents(null);
                             boolean hasTransferableText =
                                     (contents != null) &&
@@ -452,12 +444,26 @@ class Panel extends JPanel {
          */
     }
 
+    public void performCut(Editable editableField) {
+        StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
+        clipboard.setContents(stringSelection, editableField);
+        editableField.replaceSelection("");
+    }
+
+    public Editable getDecimalField() {
+        return jtaDecimal;
+    }
+
+    public Editable getBinaryField() {
+        return jtfBinary;
+    }
+
     /**
      * Clears the panel's input and output components
      */
     public void clear() {
-        jtaDecimal.clearEditText();
-        jtfBinary.clearEditText();
+        jtaDecimal.clearText();
+        jtfBinary.clearText();
     }
 
     /**
@@ -466,8 +472,8 @@ class Panel extends JPanel {
     private void countBits() {
         //int bitGroup = 1;
         int index = 0;
-        int length = jtfBinary.getEditText().length();
-        binString = jtfBinary.getEditText();
+        int length = jtfBinary.getText().length();
+        binString = jtfBinary.getText();
         countSignBits = 0;
         countExpBits = 0;
         countFracBits = 0;
@@ -527,7 +533,7 @@ class Panel extends JPanel {
                             "    Fraction (" + countFracBits + ")" +
                             "    Spaces (" + countSpaces+ ")");
             if (activeTextField == "jtfBinary") {
-                jtaDecimal.setText(jtfBinary.getEditText());
+                jtaDecimal.setText(jtfBinary.getText());
             }
         }
     }
@@ -539,11 +545,11 @@ class Panel extends JPanel {
         if (jtaDecimal.getText().length() > 0) {
 
             @SuppressWarnings("unused")
-            double checkFloat;
+            BigDecimal checkNumber;
             boolean validNumber = true;
 
             try {
-                checkFloat = new Double(jtaDecimal.getText());
+                checkNumber = new BigDecimal(jtaDecimal.getText());
             } catch (NumberFormatException ex) {
                 validNumber = false;
                 jtfBinary.setText("");
@@ -565,6 +571,10 @@ class Panel extends JPanel {
             jtfBinary.setText("");
         }
     }
+
+    public String getActiveField() {
+        return activeTextField;
+    }
 }
 
 @SuppressWarnings("serial")
@@ -584,8 +594,8 @@ class TextMenu extends JPopupMenu {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                editable.requestEditFocus();
-                editable.clearEditText();
+                editable.requestFocus();
+                editable.clearText();
             }
         });
 
@@ -593,7 +603,7 @@ class TextMenu extends JPopupMenu {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                // leave empty, implement outside
             }
         });
 
@@ -801,7 +811,22 @@ class MenuBar extends JMenuBar {
             public void actionPerformed(ActionEvent e) {
                 panel.clear();
             }
-
         });
+
+        jmiCut.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (panel.getActiveField() == "jtaDecimal") {
+                    panel.performCut(panel.getDecimalField());
+                } else if (panel.getActiveField() == "jtfBinary") {
+                    panel.performCut(panel.getBinaryField());
+                }
+            }
+        });
+    }
+
+    public  JMenuItem getCutItem() {
+        return jmiCut;
     }
 }

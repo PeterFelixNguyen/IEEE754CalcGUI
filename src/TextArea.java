@@ -42,28 +42,10 @@ public class TextArea extends JTextArea implements Editable, ClipboardOwner {
     }
 
     /**
-     * Interface method to request focus
-     */
-    @Override
-    public void requestEditFocus() {
-        requestFocus();
-    }
-
-    /**
-     * Interface method to get text of component
-     *
-     * @return text value of the JTextField component
-     */
-    @Override
-    public String getEditText() {
-        return getText();
-    }
-
-    /**
      * Interface method to clear the text of component
      */
     @Override
-    public void clearEditText() {
+    public void clearText() {
         setText("");
     }
 
@@ -71,4 +53,5 @@ public class TextArea extends JTextArea implements Editable, ClipboardOwner {
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
         // TODO Auto-generated method stub
     }
+
 }
