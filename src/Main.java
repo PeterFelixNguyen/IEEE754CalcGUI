@@ -274,12 +274,12 @@ class Panel extends JPanel {
 
             private void checkPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    if (jtaDecimal.getSelectedText() != null && jtaDecimal.getSelectedText().length() > 0) {
-                        //textMenu.SetTextSelected(true);
-                    } else {
-                        //textMenu.SetTextSelected(false);
-                    }
                     textMenu = new TextMenu(jtaDecimal);
+                    if (jtaDecimal.getSelectedText() != null && jtaDecimal.getSelectedText().length() > 0) {
+                        textMenu.notifyTextSelected(true);
+                    } else {
+                        textMenu.notifyTextSelected(false);
+                    }
                     textMenu.show(jtaDecimal, e.getX(), e.getY());
                     textMenu.getClearItem().addActionListener(new ActionListener() {
 
@@ -311,12 +311,12 @@ class Panel extends JPanel {
 
             private void checkPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
-                    if (jtfBinary.getSelectedText() != null && jtfBinary.getSelectedText().length() > 0) {
-                        //textMenu.SetTextSelected(true);
-                    } else {
-                        //textMenu.SetTextSelected(false);
-                    }
                     textMenu = new TextMenu(jtfBinary);
+                    if (jtfBinary.getSelectedText() != null && jtfBinary.getSelectedText().length() > 0) {
+                        textMenu.notifyTextSelected(true);
+                    } else {
+                        textMenu.notifyTextSelected(false);
+                    }
                     textMenu.show(jtfBinary, e.getX(), e.getY());
                     textMenu.getClearItem().addActionListener(new ActionListener() {
 
@@ -478,6 +478,11 @@ class TextMenu extends JPopupMenu {
 
     public JMenuItem getClearItem() {
         return jmiClear;
+    }
+
+    public void notifyTextSelected(boolean state) {
+        jmiCut.setEnabled(state);
+        jmiCopy.setEnabled(state);
     }
 }
 
