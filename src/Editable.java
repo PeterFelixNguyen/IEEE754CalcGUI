@@ -1,5 +1,7 @@
 import java.awt.datatransfer.ClipboardOwner;
 
+import javax.swing.text.Document;
+
 /**
  * Copyright 2014 Latrice Sebastian, Peter "Felix" Nguyen
  *
@@ -25,4 +27,6 @@ public interface Editable extends ClipboardOwner {
     public String getSelectedText();
     public void clearText();
     public void replaceSelection(String string);
+    public Document getDocument();
+    public int getCaretPosition();
 }

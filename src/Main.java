@@ -307,8 +307,7 @@ class Panel extends JPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            StringSelection stringSelection = new StringSelection(jtaDecimal.getSelectedText());
-                            clipboard.setContents(stringSelection, jtaDecimal);
+                            performCopy(jtaDecimal);
                         }
                     });
 
@@ -316,32 +315,7 @@ class Panel extends JPanel {
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            String cbString = "";
-
-                            Transferable contents = clipboard.getContents(null);
-                            boolean hasTransferableText =
-                                    (contents != null) &&
-                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-                            if (hasTransferableText) {
-                                try {
-                                    cbString = (String)contents.getTransferData(DataFlavor.stringFlavor);
-                                }
-                                catch (UnsupportedFlavorException | IOException ex){
-                                    System.out.println(ex);
-                                    ex.printStackTrace();
-                                }
-                            }
-                            try {
-                                // need to do text selection
-                                if (jtaDecimal.getSelectedText() == null) {
-                                    jtaDecimal.getDocument().insertString(jtaDecimal.getCaretPosition(), cbString, null);
-                                } else {
-                                    jtaDecimal.replaceSelection(cbString);
-                                }
-                            }
-                            catch (BadLocationException e1) {
-                                e1.printStackTrace();
-                            }
+                            performPaste(jtaDecimal);
                         }
                     });
                 }
@@ -394,8 +368,7 @@ class Panel extends JPanel {
 
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            StringSelection stringSelection = new StringSelection(jtfBinary.getSelectedText());
-                            clipboard.setContents(stringSelection, jtfBinary);
+                            performCopy(jtfBinary);
                         }
                     });
 
@@ -403,33 +376,7 @@ class Panel extends JPanel {
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            String cbString = "";
-
-                            Transferable contents = clipboard.getContents(null);
-                            boolean hasTransferableText =
-                                    (contents != null) &&
-                                    contents.isDataFlavorSupported(DataFlavor.stringFlavor);
-                            if (hasTransferableText) {
-                                try {
-                                    cbString = (String)contents.getTransferData(DataFlavor.stringFlavor);
-                                }
-                                catch (UnsupportedFlavorException | IOException ex){
-                                    System.out.println(ex);
-                                    ex.printStackTrace();
-                                }
-                            }
-                            try {
-                                // need to do text selection
-                                if (jtfBinary.getSelectedText() == null) {
-                                    jtfBinary.getDocument().insertString(jtfBinary.getCaretPosition(), cbString, null);
-                                } else {
-                                    //jtfBinary.replaceRange(result, jtfBinary.getSelectionStart(), jtfBinary.getSelectionEnd());
-                                    jtfBinary.replaceSelection(cbString);
-                                }
-                            }
-                            catch (BadLocationException e1) {
-                                e1.printStackTrace();
-                            }
+                            performPaste(jtfBinary);
                         }
                     });
                 }
@@ -448,6 +395,48 @@ class Panel extends JPanel {
         StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
         clipboard.setContents(stringSelection, editableField);
         editableField.replaceSelection("");
+    }
+
+    public void performCopy(Editable editableField) {
+        StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
+        clipboard.setContents(stringSelection, editableField);
+    }
+
+    public void performPaste(Editable editableField) {
+        String cbString = "";
+
+        Transferable contents = clipboard.getContents(null);
+        boolean hasTransferableText =
+                (contents != null) &&
+                contents.isDataFlavorSupported(DataFlavor.stringFlavor);
+        if (hasTransferableText) {
+            try {
+                cbString = (String)contents.getTransferData(DataFlavor.stringFlavor);
+            }
+            catch (UnsupportedFlavorException | IOException ex){
+                System.out.println(ex);
+                ex.printStackTrace();
+            }
+        }
+        try {
+            if (editableField.getSelectedText() == null) {
+                editableField.getDocument().insertString(editableField.getCaretPosition(), cbString, null);
+            } else {
+                editableField.replaceSelection(cbString);
+            }
+        }
+        catch (BadLocationException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    public Editable getActiveField() {
+        if (activeTextField == "jtaDecimal") {
+            return jtaDecimal;
+        } else if (activeTextField == "jtfBinary") {
+            return jtfBinary;
+        } else
+            return null;
     }
 
     public Editable getDecimalField() {
@@ -570,10 +559,6 @@ class Panel extends JPanel {
         } else {
             jtfBinary.setText("");
         }
-    }
-
-    public String getActiveField() {
-        return activeTextField;
     }
 }
 
@@ -817,16 +802,24 @@ class MenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (panel.getActiveField() == "jtaDecimal") {
-                    panel.performCut(panel.getDecimalField());
-                } else if (panel.getActiveField() == "jtfBinary") {
-                    panel.performCut(panel.getBinaryField());
-                }
+                panel.performCut(panel.getActiveField());
             }
         });
-    }
 
-    public  JMenuItem getCutItem() {
-        return jmiCut;
+        jmiCopy.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.performCopy(panel.getActiveField());
+            }
+        });
+
+        jmiPaste.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.performPaste(panel.getActiveField());
+            }
+        });
     }
 }
