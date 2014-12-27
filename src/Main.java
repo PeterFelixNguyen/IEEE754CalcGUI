@@ -242,16 +242,12 @@ class Panel extends JPanel {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (activeTextField == "jtfBinary") {
-                    countBits();
-                }
+                countBits();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (activeTextField == "jtfBinary") {
-                    countBits();
-                }
+                countBits();
             }
 
             @Override
@@ -416,9 +412,10 @@ class Panel extends JPanel {
                             "    Exponent (" + countExpBits + ")" +
                             "    Fraction (" + countFracBits + ")" +
                             "    Spaces (" + countSpaces+ ")");
-            jtaDecimal.setText(jtfBinary.getEditText());
+            if (activeTextField == "jtfBinary") {
+                jtaDecimal.setText(jtfBinary.getEditText());
+            }
         }
-
     }
 
     /**
