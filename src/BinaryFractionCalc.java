@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import java.math.BigDecimal;
 
 public class BinaryFractionCalc {
@@ -24,8 +25,8 @@ public class BinaryFractionCalc {
 	private String doubleFracStr = "";
 	private String singleFracStr = "";
 	private String halfFracStr = "";
-	private String expBits;
-	private String fracBits;
+	private String exponentBits = "";
+	private String fracBits = "";
 	private String decNum;
 	private final int DOUBLE_BIAS = 1023;
 	private final int SINGLE_BIAS = 127;
@@ -49,7 +50,6 @@ public class BinaryFractionCalc {
 		if (signBit.equals("1 "))
 			number = number.abs();
 		fraction = number;
-		//System.out.println("The full fractional number: " + fraction);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class BinaryFractionCalc {
 	 */
 	public BinaryFractionCalc(String sign, String exp, String frac) {
 		signBit = sign;
-		expBits = exp;
+		exponentBits = exp;
 		fracBits = frac;
 	}
 
@@ -75,7 +75,7 @@ public class BinaryFractionCalc {
 	 * @return string that represents a base 10 floating-point number
 	 */
 	public String getDecimal() {
-		calculateDecimal(signBit, expBits, fracBits);
+		calculateDecimal(signBit, exponentBits, fracBits);
 		return decNum;
 	}
 
@@ -151,17 +151,24 @@ public class BinaryFractionCalc {
 	private String helpFunction(BigDecimal number, String fracStr, int bias,
 			int bits, int expBits) {
 		intPart = number.setScale(0, BigDecimal.ROUND_DOWN);
-		// System.out.println("The intPart of the number: " + intPart);
 		boolean zero = false;
 
 		if (intPart.compareTo(BigDecimal.ZERO) == 0) {
 			zero = true;
 		}
+		String localStr = "";
 
 		fractionPart = number.subtract(intPart);
-		// System.out.println("The fractionPart of the number: "
-		// + number.subtract(intPart));
-		String localStr = "";
+
+        //This section fixes the bug with 0
+		if (checkIfZero(intPart, fractionPart)) {
+			for (int i = expBits; i > 0; i--)
+				localStr += '0';
+			for (int j = bits; j > 0; j--)
+				fracStr += '0';
+			return signBit + localStr + ' ' + fracStr;
+		}
+		//End of bug fix
 
 		if (!zero) {
 
@@ -189,25 +196,12 @@ public class BinaryFractionCalc {
 						+ localStr.substring(exponent + 1, localStr.length());
 			}
 			// Rounding implementation
-			if (fracStr.length() > bits + 1)
-				fracStr = fracStr.substring(0, bits + 1);
-			int j = 0;
-			if (fracStr.charAt(fracStr.length() - 1) == '1') {
-				for (int i = fracStr.length() - 1; i > 0; i--, j++) {
-					if (fracStr.charAt(i) == '0') {
-						fracStr = fracStr.substring(0, i) + '1';
-						break;
-					} else {
-						fracStr = fracStr.substring(0, i);
-					}
-				}
-			}
-			for (; j > 0; j--)
-				fracStr += '0';
+			fracStr = rounding(fracStr, bits);
 			// End of rounding
-			
+
 			if (fracStr.length() > bits)
 				fracStr = fracStr.substring(0, bits);
+
 			exponent = exponent - 1 + bias;
 
 			localStr = "";
@@ -241,21 +235,7 @@ public class BinaryFractionCalc {
 			localFrac = localFrac.substring(exponent);
 
 			// Rounding implementation
-			if (localFrac.length() > bits + 1)
-				localFrac = localFrac.substring(0, bits + 1);
-			int j = 0;
-			if (localFrac.charAt(localFrac.length() - 1) == '1') {
-				for (int i = localFrac.length() - 1; i > 0; i--, j++) {
-					if (localFrac.charAt(i) == '0') {
-						localFrac = localFrac.substring(0, i) + '1';
-						break;
-					} else {
-						localFrac = localFrac.substring(0, i);
-					}
-				}
-			}
-			for (; j > 0; j--)
-				localFrac += '0';
+			localFrac = rounding(localFrac, bits);
 			// End of Rounding
 
 			for (int i = 0; i < exponent; i++) {
@@ -277,6 +257,47 @@ public class BinaryFractionCalc {
 			fracStr = signBit + localStr + localFrac;
 		}
 		return fracStr;
+	}
+
+	/**
+	 * Rounds the fractional part of the number up if necessary
+	 * 
+	 * @param frac
+	 *            String that contains the fractional part of the number
+	 * @param bits
+	 *            number of bits in the fractional part
+	 * @return String that contains the rounded fractional part
+	 */
+	private String rounding(String frac, int bits) {
+		if (frac.length() > bits + 1)
+			frac = frac.substring(0, bits + 1);
+		int j = 0;
+		if (frac.charAt(frac.length() - 1) == '1') {
+			for (int i = frac.length() - 1; i > 0; i--, j++) {
+				if (frac.charAt(i) == '0') {
+					frac = frac.substring(0, i) + '1';
+					break;
+				} else
+					frac = frac.substring(0, i);
+			}
+		}
+		for (; j > 0; j--)
+			frac += '0';
+		return frac;
+	}
+
+	/**
+	 * Checks if the number that the user enters is 0
+	 * 
+	 * @param integer
+	 *            the integer part of the number
+	 * @param fraction
+	 *            the fractional part of the number
+	 * @return true or false
+	 */
+	private boolean checkIfZero(BigDecimal integer, BigDecimal fraction) {
+		return ((integer.compareTo(BigDecimal.ZERO) == 0) && (fraction
+				.compareTo(BigDecimal.ZERO) == 0)) ? true : false;
 	}
 
 	/**
