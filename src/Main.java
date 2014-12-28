@@ -112,11 +112,12 @@ class Panel extends JPanel {
     private int countExpBits;
     private int countFracBits;
     private int countSpaces;
-    private JLabel jlNumberInfo = new JLabel(
+    private String defaultNumberInfo =
             "Sign (" + countSignBits + ")" +
                     "    Exponent (" + countExpBits + ")" +
                     "    Fraction (" + countFracBits + ")" +
-                    "    Spaces (" + countSpaces+ ")");
+                    "    Spaces (" + countSpaces+ ")";
+    private JLabel jlNumberInfo = new JLabel(defaultNumberInfo);
     private int maxLength = 66;
     private final int maxSign = 1;
     private int maxExp = 11;
@@ -487,6 +488,7 @@ class Panel extends JPanel {
     public void clear() {
         jtaDecimal.clearText();
         jtfBinary.clearText();
+        jlNumberInfo.setText(defaultNumberInfo);
     }
 
     /**
