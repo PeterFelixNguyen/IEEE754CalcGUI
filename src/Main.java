@@ -106,10 +106,10 @@ class Panel extends JPanel {
     // String values
     private String binString = "";
     // Count bits
-    private int countSignBits = 0;
-    private int countExpBits = 0;
-    private int countFracBits = 0;
-    private int countSpaces = 0;
+    private int countSignBits;
+    private int countExpBits;
+    private int countFracBits;
+    private int countSpaces;
     private JLabel jlNumberInfo = new JLabel(
             "Sign (" + countSignBits + ")" +
                     "    Exponent (" + countExpBits + ")" +
@@ -127,8 +127,12 @@ class Panel extends JPanel {
     private String expBits = "";
     @SuppressWarnings("unused")
     private String fracBits = "";
-    // Experimental
+    // No longer experimental
     private String activeTextField = "jtaDecimal";
+    // Experimental
+    @SuppressWarnings("unused")
+    private boolean isTrailing = true;
+    private boolean isSpaced = false;
 
     /**
      * Panel constructor
@@ -467,54 +471,82 @@ class Panel extends JPanel {
         countExpBits = 0;
         countFracBits = 0;
         countSpaces = 0;
+        int maxSpaces = 2;
+        int tempMax = maxLength;
 
-        if (length > maxLength) {
+        if (!isSpaced) {
+            tempMax = maxLength - 2;
+            maxSpaces = 0;
+        }
+
+        System.out.println("tempMax: " + tempMax);
+
+        if (length > tempMax) {
             isInvalid = true;
         } else {
             isInvalid = false;
         }
 
-        while (isInvalid == false && index < length) {
-            if (binString.charAt(index) == '1' || binString.charAt(index) == '0') {
-                switch (countSpaces) {
-                    case 0:
-                        countSignBits++;
-                        if (countSignBits > maxSign) {
+        if (isSpaced) {
+            while (!isInvalid && index < length ) {
+                if (binString.charAt(index) == '1' || binString.charAt(index) == '0') {
+                    switch (countSpaces) {
+                        case 0:
+                            countSignBits++;
+                            if (countSignBits > maxSign) {
+                                isInvalid = true;
+                            }
+                            break;
+                        case 1:
+                            countExpBits++;
+                            if (countExpBits > maxExp) {
+                                isInvalid = true;
+                            }
+                            break;
+                        case 2:
+                            countFracBits++;
+                            if (countFracBits > maxFrac) {
+                                isInvalid = true;
+                            }
+                            break;
+                        default:
                             isInvalid = true;
-                        }
-                        break;
-                    case 1:
-                        countExpBits++;
-                        if (countExpBits > maxExp) {
-                            isInvalid = true;
-                        }
-                        break;
-                    case 2:
-                        countFracBits++;
-                        if (countFracBits > maxFrac) {
-                            isInvalid = true;
-                        }
-                        break;
-                    default:
-                        isInvalid = true;
-                        break;
+                            break;
+                    }
                 }
-            }
-            else if (binString.charAt(index) == ' ' && countSpaces < 2) {
-                if (index != 0 && binString.charAt(index-1) == ' ') {
+                else if (binString.charAt(index) == ' ' && countSpaces < maxSpaces) {
+                    if (index != 0 && binString.charAt(index-1) == ' ') {
+                        isInvalid = true;
+                    }
+                    countSpaces++;
+                } else {
                     isInvalid = true;
                 }
-                countSpaces++;
-            } else {
-                isInvalid = true;
+                index++;
             }
-            index++;
-
+        } else {
+            System.out.println("DO BEFORE");
+            System.out.println("length: " + length);
+            int i = 0;
+            while (i < length && !isInvalid) {
+                if (binString.charAt(i) != '0' &&
+                        binString.charAt(i) != '1') {
+                    isInvalid = true;
+                }
+                if (countSignBits < maxSign) {
+                    countSignBits++;
+                } else if (countExpBits < maxExp) {
+                    countExpBits++;
+                } else if (countFracBits < maxFrac) {
+                    countFracBits++;
+                }
+                i++;
+            }
         }
 
         if (isInvalid == true) {
             jlNumberInfo.setText("INVALID BINARY NUMBER");
-            jtaDecimal.setText("");
+            //jtaDecimal.setText("");
         } else {
             jlNumberInfo.setText(
                     "Sign (" + countSignBits + ")" +
@@ -548,13 +580,25 @@ class Panel extends JPanel {
             if (validNumber) {
                 calc = new BinaryFractionCalc(new BigDecimal(jtaDecimal.getText()));
 
+                String result = "";
+
                 if (jsBitMode.getValue() == 1) {
-                    jtfBinary.setText(calc.getHalf());
+                    result = calc.getHalf();
                 } else if (jsBitMode.getValue() == 2) {
-                    jtfBinary.setText(calc.getSingle());
+                    result = calc.getSingle();
                 } else {
-                    jtfBinary.setText(calc.getDouble());
+                    result = calc.getDouble();
                 }
+
+                if (!isSpaced) {
+                    result = result.replaceAll("\\s","");
+                }
+
+                String test = "";
+                test = result.replaceAll("\\s","");
+                System.out.println("spaces removed: " + test);
+
+                jtfBinary.setText(result);
             }
         } else {
             jtfBinary.setText("");
@@ -737,13 +781,6 @@ class PrecisionSlider extends JSlider {
  */
 @SuppressWarnings("serial")
 class MenuBar extends JMenuBar {
-    // Edit items
-    private JMenu jmEdit = new JMenu("Edit");
-    private JMenuItem jmiClear = new JMenuItem("Clear");
-    private JMenuItem jmiCut = new JMenuItem("Cut");
-    private JMenuItem jmiCopy = new JMenuItem("Copy");
-    private JMenuItem jmiPaste = new JMenuItem("Paste");
-
     // Option items
     private JMenu jmOptions = new JMenu("Options");
     private JMenu jmGenericMenu = new JMenu("Generic Menu");
@@ -751,6 +788,13 @@ class MenuBar extends JMenuBar {
     private JRadioButtonMenuItem jmiItem2 = new JRadioButtonMenuItem("Item 2", null, false);
     private JCheckBoxMenuItem jcbmiTrailing = new JCheckBoxMenuItem("Keep trailing zeroes", null, true);
     private JCheckBoxMenuItem jcbmiSpaces = new JCheckBoxMenuItem("Use space delimiters", null, true);
+
+    // Edit items
+    private JMenu jmEdit = new JMenu("Edit");
+    private JMenuItem jmiClear = new JMenuItem("Clear");
+    private JMenuItem jmiCut = new JMenuItem("Cut");
+    private JMenuItem jmiCopy = new JMenuItem("Copy");
+    private JMenuItem jmiPaste = new JMenuItem("Paste");
 
     // Help ITEMS
     private JMenu jmHelp = new JMenu("Help");
@@ -768,12 +812,6 @@ class MenuBar extends JMenuBar {
         add(jmEdit);
         add(jmHelp);
 
-        // Edit items
-        jmEdit.add(jmiClear);
-        jmEdit.add(jmiCut);
-        jmEdit.add(jmiCopy);
-        jmEdit.add(jmiPaste);
-
         // Option items
         ButtonGroup showTrailFracGroup = new ButtonGroup();
         showTrailFracGroup.add(jmiItem1);
@@ -784,12 +822,35 @@ class MenuBar extends JMenuBar {
         jmOptions.add(jcbmiTrailing);
         jmOptions.add(jcbmiSpaces);
 
+        // Edit items
+        jmEdit.add(jmiClear);
+        jmEdit.add(jmiCut);
+        jmEdit.add(jmiCopy);
+        jmEdit.add(jmiPaste);
+
         // Help items
         jmHelp.add(jmiAboutCalc);
         jmHelp.add(jmiDeveloperContact);
         jmHelp.add(jmiHowToUse);
 
-        // Buttons
+        // Option Actions
+        jcbmiTrailing.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        jcbmiSpaces.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        // Edit Actions
         jmiClear.addActionListener(new ActionListener() {
 
             @Override
@@ -797,7 +858,6 @@ class MenuBar extends JMenuBar {
                 panel.clear();
             }
         });
-
         jmiCut.addActionListener(new ActionListener() {
 
             @Override
@@ -821,5 +881,13 @@ class MenuBar extends JMenuBar {
                 panel.performPaste(panel.getActiveField());
             }
         });
+    }
+
+    public boolean isTrailing() {
+        return jcbmiTrailing.isSelected();
+    }
+
+    public boolean isSpaced() {
+        return jcbmiSpaces.isSelected();
     }
 }
