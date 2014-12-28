@@ -277,11 +277,8 @@ class Panel extends JPanel {
             private void checkPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     textMenu = new TextMenu(jtaDecimal);
-                    if (jtaDecimal.getSelectedText() != null && jtaDecimal.getSelectedText().length() > 0) {
-                        textMenu.notifyTextSelected(true);
-                    } else {
-                        textMenu.notifyTextSelected(false);
-                    }
+                    textMenu.notifyTextSelected(checkForSelectedText());
+
                     textMenu.show(jtaDecimal, e.getX(), e.getY());
                     textMenu.getClearItem().addActionListener(new ActionListener() {
 
@@ -337,11 +334,8 @@ class Panel extends JPanel {
             private void checkPopup(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     textMenu = new TextMenu(jtfBinary);
-                    if (jtfBinary.getSelectedText() != null && jtfBinary.getSelectedText().length() > 0) {
-                        textMenu.notifyTextSelected(true);
-                    } else {
-                        textMenu.notifyTextSelected(false);
-                    }
+                    textMenu.notifyTextSelected(checkForSelectedText());
+
                     textMenu.show(jtfBinary, e.getX(), e.getY());
 
                     textMenu.getClearItem().addActionListener(new ActionListener() {
