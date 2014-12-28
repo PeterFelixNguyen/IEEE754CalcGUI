@@ -154,6 +154,7 @@ class Panel extends JPanel {
         jtaDecimal.setLineWrap(true);
         jtaDecimal.setWrapStyleWord(true);
         // Start: Override tab behavior in jtaDecimal (keyboard focus instead of tab character)
+        // Source: stackoverflow.com/questions/525855/moving-focus-from-jtextarea-using-tab-key
         Set<KeyStroke>
         strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
         jtaDecimal.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, strokes);
@@ -532,7 +533,7 @@ class Panel extends JPanel {
 
         if (isInvalid == true) {
             jlNumberInfo.setText("INVALID BINARY NUMBER");
-            //jtaDecimal.setText("");
+            jtaDecimal.setText("");
         } else {
             jlNumberInfo.setText(
                     "Sign (" + countSignBits + ")" +
@@ -546,44 +547,46 @@ class Panel extends JPanel {
     }
 
     /**
-     * Instructs the calculator to convert the bits based on jtfInput's value
+     * Instructs the calculator to convert the bits based on jtaDecimal's value
      */
     public void convertToBits() {
-        if (activeTextField == "jtaDecimal" && jtaDecimal.getText().length() > 0 ) {
+        if (activeTextField == "jtaDecimal") {
+            if (jtaDecimal.getText().length() > 0 ) {
 
-            @SuppressWarnings("unused")
-            BigDecimal checkNumber;
-            boolean validNumber = true;
+                @SuppressWarnings("unused")
+                BigDecimal checkNumber;
+                boolean validNumber = true;
 
-            try {
-                checkNumber = new BigDecimal(jtaDecimal.getText());
-            } catch (NumberFormatException ex) {
-                validNumber = false;
+                try {
+                    checkNumber = new BigDecimal(jtaDecimal.getText());
+                } catch (NumberFormatException ex) {
+                    validNumber = false;
+                    jtfBinary.setText("");
+                    jlNumberInfo.setText("INVALID DECIMAL NUMBER");
+                }
+
+                if (validNumber) {
+                    calc = new BinaryFractionCalc(new BigDecimal(jtaDecimal.getText()));
+
+                    String result = "";
+
+                    if (jsBitMode.getValue() == 1) {
+                        result = calc.getHalf();
+                    } else if (jsBitMode.getValue() == 2) {
+                        result = calc.getSingle();
+                    } else {
+                        result = calc.getDouble();
+                    }
+
+                    if (!isSpaced) {
+                        result = result.replaceAll("\\s","");
+                    }
+
+                    jtfBinary.setText(result);
+                }
+            } else {
                 jtfBinary.setText("");
-                jlNumberInfo.setText("INVALID DECIMAL NUMBER");
             }
-
-            if (validNumber) {
-                calc = new BinaryFractionCalc(new BigDecimal(jtaDecimal.getText()));
-
-                String result = "";
-
-                if (jsBitMode.getValue() == 1) {
-                    result = calc.getHalf();
-                } else if (jsBitMode.getValue() == 2) {
-                    result = calc.getSingle();
-                } else {
-                    result = calc.getDouble();
-                }
-
-                if (!isSpaced) {
-                    result = result.replaceAll("\\s","");
-                }
-
-                jtfBinary.setText(result);
-            }
-        } else {
-            jtfBinary.setText("");
         }
     }
 }
@@ -734,7 +737,6 @@ class MenuBar extends JMenuBar {
         jmGenericMenu.add(jmiItem2);
         jmOptions.add(jcbmiTrailing);
         jmOptions.add(jcbmiSpaces);
-
 
         // Edit items
         jmEdit.add(jmiClear);
