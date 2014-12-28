@@ -83,7 +83,7 @@ class Frame extends JFrame {
         add(panel);
         setJMenuBar(new MenuBar(panel));
         setTitle("IEEE 754 Converter");
-        setSize(520, 280);
+        setSize(520, 220);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
