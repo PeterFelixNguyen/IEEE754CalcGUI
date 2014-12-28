@@ -632,7 +632,6 @@ class Panel extends JPanel {
                         int i = maxLength - 1;
                         int numSpaces = 2;
                         while (i >= maxSign + maxExp + numSpaces) {
-                            System.out.println(i);
                             if (result.charAt(i) == '1') {
                                 i++;
                                 break;
