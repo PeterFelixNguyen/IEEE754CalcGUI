@@ -124,7 +124,6 @@ class Panel extends JPanel {
     private int maxFrac = 52;
     private boolean isInvalid = true;
     // Flags
-    @SuppressWarnings("unused")
     private boolean isTrailing = true;
     private boolean isSpaced = true;
 
@@ -389,9 +388,19 @@ class Panel extends JPanel {
     }
 
     /**
+     * Sets the trailing mode for trialing zeros in
+     * jtfBinary's bit String
+     * 
+     * @param state trailing state for jtfBinary
+     */
+    public void setTrailing(boolean state) {
+        isTrailing = state;
+    }
+
+    /**
      * Sets the spacing mode for jtfBinary's bit String
      * 
-     * @param state spacing state in jtfBinary
+     * @param state spacing state for jtfBinary
      */
     public void setSpaced(boolean state) {
         isSpaced = state;
@@ -619,6 +628,20 @@ class Panel extends JPanel {
                         result = calc.getDouble();
                     }
 
+                    if (!isTrailing) {
+                        int i = maxLength - 1;
+                        int numSpaces = 2;
+                        while (i >= maxSign + maxExp + numSpaces) {
+                            System.out.println(i);
+                            if (result.charAt(i) == '1') {
+                                i++;
+                                break;
+                            }
+                            i--;
+                        }
+                        result = result.substring(0, i);
+                    }
+
                     if (!isSpaced) {
                         result = result.replaceAll("\\s","");
                     }
@@ -743,6 +766,8 @@ class MenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                panel.setTrailing(jcbmiTrailing.isSelected());
+                panel.convertToBits();
             }
         });
 
