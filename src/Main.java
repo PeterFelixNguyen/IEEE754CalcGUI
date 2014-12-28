@@ -377,26 +377,52 @@ class Panel extends JPanel {
         });
     }
 
+    /**
+     * Checks whether text is selected in the current
+     * Editable object with the keyboard focus
+     * 
+     * @return true if text selected, false if not selected
+     */
     public boolean checkForSelectedText() {
         return (getActiveField().getSelectedText() != null && getActiveField().getSelectedText().length() > 0);
     }
 
+    /**
+     * Sets the spacing mode for jtfBinary's bit String
+     * 
+     * @param state spacing state in jtfBinary
+     */
     public void setSpaced(boolean state) {
         isSpaced = state;
     }
 
+    /**
+     * Performs a cut operation on the specified Editable object
+     * 
+     * @param editableField Editable object
+     */
     public void performCut(Editable editableField) {
         StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
         clipboard.setContents(stringSelection, editableField);
         editableField.replaceSelection("");
     }
 
+    /**
+     * Performs a copy operation on the specified Editable object
+     * 
+     * @param editableField Editable object
+     */
     public void performCopy(Editable editableField) {
         StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
         clipboard.setContents(stringSelection, editableField);
     }
 
-    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
+    /**
+     * Performs a paste operation on the specified Editable object
+     * Source: http://www.javapractices.com/topic/TopicAction.do?Id=82
+     * 
+     * @param editableField Editable object
+     */
     public void performPaste(Editable editableField) {
         String cbString = "";
 
@@ -425,6 +451,13 @@ class Panel extends JPanel {
         }
     }
 
+    /**
+     * Returns the Editable JTextArea with the keyboard focus.
+     * If none of the relevant components have the keyboard focus,
+     * then returns null.
+     * 
+     * @return Editable JTextArea with the keyboard focus
+     */
     public Editable getActiveField() {
         if (activeTextField == "jtaDecimal") {
             return jtaDecimal;
@@ -434,10 +467,16 @@ class Panel extends JPanel {
             return null;
     }
 
+    /**
+     * @return Editable JTextArea for Decimal
+     */
     public Editable getDecimalField() {
         return jtaDecimal;
     }
 
+    /**
+     * @return Editable JTextArea for Bnary
+     */
     public Editable getBinaryField() {
         return jtfBinary;
     }
@@ -591,74 +630,6 @@ class Panel extends JPanel {
     }
 }
 
-@SuppressWarnings("serial")
-class TextMenu extends JPopupMenu {
-    private JMenuItem jmiClear = new JMenuItem("Clear");
-    private JMenuItem jmiCopy = new JMenuItem("Copy");
-    private JMenuItem jmiCut = new JMenuItem("Cut");
-    private JMenuItem jmiPaste = new JMenuItem("Paste");
-
-    public TextMenu (final Editable editable) {
-        add(jmiClear);
-        add(jmiCut);
-        add(jmiCopy);
-        add(jmiPaste);
-
-        jmiClear.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                editable.requestFocus();
-                editable.clearText();
-            }
-        });
-
-        jmiCut.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // leave empty, implement outside
-            }
-        });
-
-        jmiCopy.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // leave empty, implement outside
-            }
-        });
-
-        jmiPaste.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // leave empty, implement outside
-            }
-        });
-    }
-
-    public JMenuItem getClearItem() {
-        return jmiClear;
-    }
-
-    public JMenuItem getCutItem() {
-        return jmiCut;
-    }
-
-    public JMenuItem getCopyItem() {
-        return jmiCopy;
-    }
-
-    public JMenuItem getPasteItem() {
-        return jmiPaste;
-    }
-
-    public void notifyTextSelected(boolean state) {
-        jmiCut.setEnabled(state);
-        jmiCopy.setEnabled(state);
-    }
-}
 
 /**
  * The PrecisionSlider is a JSlider used to configure the precision-mode
@@ -815,11 +786,114 @@ class MenuBar extends JMenuBar {
         });
     }
 
+    /**
+     * @return true if trailing zeros in the
+     *         significant bits are shown, false otherwise
+     */
     public boolean isTrailing() {
         return jcbmiTrailing.isSelected();
     }
 
+    /**
+     * @return true if bit parts are spaced, false otherwise
+     */
     public boolean isSpaced() {
         return jcbmiSpaces.isSelected();
+    }
+}
+
+/**
+ * This TextMenu contains commands to modify the current active
+ * text field and provides clipboard functionality.
+ */
+@SuppressWarnings("serial")
+class TextMenu extends JPopupMenu {
+    private JMenuItem jmiClear = new JMenuItem("Clear");
+    private JMenuItem jmiCopy = new JMenuItem("Copy");
+    private JMenuItem jmiCut = new JMenuItem("Cut");
+    private JMenuItem jmiPaste = new JMenuItem("Paste");
+
+    /**
+     * TextMenu constructor for a specified
+     * Editable object.
+     * 
+     * @param editable object that implement Editable
+     */
+    public TextMenu (final Editable editable) {
+        add(jmiClear);
+        add(jmiCut);
+        add(jmiCopy);
+        add(jmiPaste);
+
+        jmiClear.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                editable.requestFocus();
+                editable.clearText();
+            }
+        });
+
+        jmiCut.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // leave empty, implement outside
+            }
+        });
+
+        jmiCopy.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // leave empty, implement outside
+            }
+        });
+
+        jmiPaste.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // leave empty, implement outside
+            }
+        });
+    }
+
+    /**
+     * @return jmiClear
+     */
+    public JMenuItem getClearItem() {
+        return jmiClear;
+    }
+
+    /**
+     * @return jmiCut
+     */
+    public JMenuItem getCutItem() {
+        return jmiCut;
+    }
+
+    /**
+     * @return jmiCopy
+     */
+    public JMenuItem getCopyItem() {
+        return jmiCopy;
+    }
+
+    /**
+     * @return jmiPaste
+     */
+    public JMenuItem getPasteItem() {
+        return jmiPaste;
+    }
+
+    /**
+     * Set the enabled state of jmiCut and jmiCopy
+     * 
+     * @param state enabled state of jmiCut and jmiCopy
+     */
+    public void notifyTextSelected(boolean state) {
+        jmiCut.setEnabled(state);
+        jmiCopy.setEnabled(state);
     }
 }
