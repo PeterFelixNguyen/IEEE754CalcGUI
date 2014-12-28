@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -48,15 +46,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.AttributeSet;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DocumentFilter;
 
 /**
  * Starts the program
@@ -311,7 +308,6 @@ class Panel extends JPanel {
                         }
                     });
 
-                    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -372,7 +368,6 @@ class Panel extends JPanel {
                         }
                     });
 
-                    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
                     textMenu.getPasteItem().addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
@@ -382,13 +377,10 @@ class Panel extends JPanel {
                 }
             }
         });
+    }
 
-        /* Unfinished Implementation of DocumentFilter */
-
-        /*
-        AbstractDocument inputDoc = (AbstractDocument) jtfInput.getDocument();
-        inputDoc.setDocumentFilter(new InputFilter(jsBitMode, jlOutput, jtfInput));
-         */
+    public boolean checkForSelectedText() {
+        return (getActiveField().getSelectedText() != null && getActiveField().getSelectedText().length() > 0);
     }
 
     public void setSpaced(boolean state) {
@@ -406,6 +398,7 @@ class Panel extends JPanel {
         clipboard.setContents(stringSelection, editableField);
     }
 
+    // implementation is from: http://www.javapractices.com/topic/TopicAction.do?Id=82
     public void performPaste(Editable editableField) {
         String cbString = "";
 
@@ -668,75 +661,6 @@ class TextMenu extends JPopupMenu {
 }
 
 /**
- * Unfinished DocumentFilter intended to filter (block) specific input values
- */
-class InputFilter extends DocumentFilter {
-    private JSlider jsBitMode;
-    private JLabel jlOutput;
-    private JTextField jtfInput;
-    private Pattern pattern; // implement later
-
-    @SuppressWarnings("unused")
-    private InputFilter() {
-        // no default constructor
-    }
-
-    /**
-     * InputFilter constructor (work in progress)
-     * 
-     * @param jsBitMode
-     * @param jlOutput
-     * @param jtfInput
-     */
-    public InputFilter(JSlider jsBitMode, JLabel jlOutput, JTextField jtfInput) {
-        this.jsBitMode = jsBitMode;
-        this.jlOutput = jlOutput;
-        this.jtfInput = jtfInput;
-        pattern = Pattern.compile("([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])");
-    }
-
-    public void processBits() {
-        BinaryFractionCalc calc = new BinaryFractionCalc(new BigDecimal(jtfInput.getText()));
-        if (jsBitMode.getValue() == 1) {
-            jlOutput.setText(calc.getHalf());
-        } else if (jsBitMode.getValue() == 2) {
-            jlOutput.setText(calc.getSingle());
-        } else {
-            jlOutput.setText(calc.getDouble());
-        }
-    }
-
-    // manual invocation
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-        String newStr = fb.getDocument().getText(0, fb.getDocument().getLength()) + string;
-        Matcher m = pattern.matcher(newStr);
-
-        if (m.matches()) {
-            super.insertString(fb, offset, string, attr);
-        } else {
-            Toolkit.getDefaultToolkit().beep();
-        }
-    }
-
-    // automatic invocation
-    @Override
-    public void remove(DocumentFilter.FilterBypass fb, int offset, int length) throws BadLocationException {
-        super.remove(fb, offset, length);
-    }
-
-    // automatic invocation
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String string, AttributeSet attr) throws BadLocationException {
-        if (length > 0) {
-            fb.remove(offset, length);
-        }
-
-        insertString(fb, offset, string, attr);
-    }
-}
-
-/**
  * The PrecisionSlider is a JSlider used to configure the precision-mode
  * for calculation of IEEE 754 fractions.
  */
@@ -787,8 +711,9 @@ class MenuBar extends JMenuBar {
     private JMenuItem jmiCut = new JMenuItem("Cut");
     private JMenuItem jmiCopy = new JMenuItem("Copy");
     private JMenuItem jmiPaste = new JMenuItem("Paste");
+    private boolean isTextSelected = false;
 
-    // Help ITEMS
+    // Help items
     private JMenu jmHelp = new JMenu("Help");
     private JMenuItem jmiAboutCalc = new JMenuItem("About IEEE754Calc");
     private JMenuItem jmiDeveloperContact = new JMenuItem("Developer Contact");
@@ -814,11 +739,28 @@ class MenuBar extends JMenuBar {
         jmOptions.add(jcbmiTrailing);
         jmOptions.add(jcbmiSpaces);
 
+
         // Edit items
         jmEdit.add(jmiClear);
         jmEdit.add(jmiCut);
         jmEdit.add(jmiCopy);
         jmEdit.add(jmiPaste);
+        jmEdit.addMenuListener(new MenuListener() {
+
+            @Override
+            public void menuSelected(MenuEvent e) {
+                jmiCut.setEnabled(panel.checkForSelectedText());
+                jmiCopy.setEnabled(panel.checkForSelectedText());
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent e) {
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent e) {
+            }
+        });
 
         // Help items
         jmHelp.add(jmiAboutCalc);
