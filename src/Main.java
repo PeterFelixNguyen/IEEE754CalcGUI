@@ -132,7 +132,7 @@ class Panel extends JPanel {
     // Experimental
     @SuppressWarnings("unused")
     private boolean isTrailing = true;
-    private boolean isSpaced = false;
+    private boolean isSpaced = true;
 
     /**
      * Panel constructor
@@ -218,16 +218,12 @@ class Panel extends JPanel {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if (activeTextField == "jtaDecimal") {
-                    convertToBits();
-                }
+                convertToBits();
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                if (activeTextField == "jtaDecimal") {
-                    convertToBits();
-                }
+                convertToBits();
             }
 
             @Override
@@ -395,6 +391,10 @@ class Panel extends JPanel {
          */
     }
 
+    public void setSpaced(boolean state) {
+        isSpaced = state;
+    }
+
     public void performCut(Editable editableField) {
         StringSelection stringSelection = new StringSelection(editableField.getSelectedText());
         clipboard.setContents(stringSelection, editableField);
@@ -479,8 +479,6 @@ class Panel extends JPanel {
             maxSpaces = 0;
         }
 
-        System.out.println("tempMax: " + tempMax);
-
         if (length > tempMax) {
             isInvalid = true;
         } else {
@@ -525,8 +523,6 @@ class Panel extends JPanel {
                 index++;
             }
         } else {
-            System.out.println("DO BEFORE");
-            System.out.println("length: " + length);
             int i = 0;
             while (i < length && !isInvalid) {
                 if (binString.charAt(i) != '0' &&
@@ -562,8 +558,8 @@ class Panel extends JPanel {
     /**
      * Instructs the calculator to convert the bits based on jtfInput's value
      */
-    private void convertToBits() {
-        if (jtaDecimal.getText().length() > 0) {
+    public void convertToBits() {
+        if (activeTextField == "jtaDecimal" && jtaDecimal.getText().length() > 0 ) {
 
             @SuppressWarnings("unused")
             BigDecimal checkNumber;
@@ -593,10 +589,6 @@ class Panel extends JPanel {
                 if (!isSpaced) {
                     result = result.replaceAll("\\s","");
                 }
-
-                String test = "";
-                test = result.replaceAll("\\s","");
-                System.out.println("spaces removed: " + test);
 
                 jtfBinary.setText(result);
             }
@@ -838,7 +830,6 @@ class MenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
             }
         });
 
@@ -846,7 +837,8 @@ class MenuBar extends JMenuBar {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                panel.setSpaced(jcbmiSpaces.isSelected());
+                panel.convertToBits();
             }
         });
 
