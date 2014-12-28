@@ -16,6 +16,7 @@
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -30,8 +31,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -46,6 +50,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.KeyStroke;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -76,7 +81,6 @@ class Frame extends JFrame {
      */
     public Frame() {
         add(panel);
-        //MenuBar menuBar = new MenuBar(panel);
         setJMenuBar(new MenuBar(panel));
         setTitle("IEEE 754 Converter");
         setSize(520, 280);
@@ -96,6 +100,7 @@ class Panel extends JPanel {
     private TextArea jtaDecimal = new TextArea(3, 20);
     private TextField jtfBinary = new TextField(44);
     private TextMenu textMenu;
+    private String activeTextField = "jtaDecimal";
     // Clipboard
     private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     // Calculator(s)
@@ -117,16 +122,7 @@ class Panel extends JPanel {
     private int maxExp = 11;
     private int maxFrac = 52;
     private boolean isInvalid = true;
-    // Binary values
-    @SuppressWarnings("unused")
-    private String signBit = "";
-    @SuppressWarnings("unused")
-    private String expBits = "";
-    @SuppressWarnings("unused")
-    private String fracBits = "";
-    // No longer experimental
-    private String activeTextField = "jtaDecimal";
-    // Experimental
+    // Flags
     @SuppressWarnings("unused")
     private boolean isTrailing = true;
     private boolean isSpaced = true;
@@ -157,6 +153,13 @@ class Panel extends JPanel {
         JPanel container3 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         jtaDecimal.setLineWrap(true);
         jtaDecimal.setWrapStyleWord(true);
+        // Start: Override tab behavior in jtaDecimal (keyboard focus instead of tab character)
+        Set<KeyStroke>
+        strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("pressed TAB")));
+        jtaDecimal.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, strokes);
+        strokes = new HashSet<KeyStroke>(Arrays.asList(KeyStroke.getKeyStroke("shift pressed TAB")));
+        jtaDecimal.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, strokes);
+        // End
         JScrollPane jspDecimal = new JScrollPane(jtaDecimal);
         container3.add(jspDecimal);
 
@@ -705,7 +708,6 @@ class MenuBar extends JMenuBar {
     private JMenuItem jmiCut = new JMenuItem("Cut");
     private JMenuItem jmiCopy = new JMenuItem("Copy");
     private JMenuItem jmiPaste = new JMenuItem("Paste");
-    private boolean isTextSelected = false;
 
     // Help items
     private JMenu jmHelp = new JMenu("Help");
