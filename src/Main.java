@@ -83,7 +83,7 @@ class Frame extends JFrame {
         add(panel);
         setJMenuBar(new MenuBar(panel));
         setTitle("IEEE 754 Converter");
-        setSize(520, 220);
+        setSize(540, 280);
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -97,14 +97,14 @@ class Frame extends JFrame {
 class Panel extends JPanel {
     // GUI components
     private PrecisionSlider jsBitMode = new PrecisionSlider();
-    private TextArea jtaDecimal = new TextArea(3, 20);
-    private TextField jtfBinary = new TextField(44);
+    private TextArea jtaDecimal = new TextArea(3, 22);
+    private TextField jtfBinary = new TextField(46);
     private TextMenu textMenu;
     private String activeTextField = "jtaDecimal";
     // Clipboard
     private Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     // Calculator(s)
-    private BinaryFractionCalc calc;
+    private FloatingPoint floatingPoint;
     // String values
     private String binString = "";
     // Count bits
@@ -121,7 +121,7 @@ class Panel extends JPanel {
     private int maxLength = 66;
     private final int maxSign = 1;
     private int maxExp = 11;
-    private int maxFrac = 52;
+    private int maxMant = 52;
     private boolean isInvalid = true;
     // Flags
     private boolean isTrailing = true;
@@ -187,16 +187,17 @@ class Panel extends JPanel {
                 if (jsBitMode.getValue() == 1) {
                     maxLength = 18;
                     maxExp = 5;
-                    maxFrac = 10;
+                    maxMant = 10;
                 } else if (jsBitMode.getValue() == 2) {
                     maxLength = 34;
                     maxExp = 8;
-                    maxFrac = 23;
+                    maxMant = 23;
                 } else {
                     maxLength = 66;
                     maxExp = 11;
-                    maxFrac = 52;
+                    maxMant = 52;
                 }
+                activeTextField = "jtaDecimal";
                 convertToBits();
             }
         });
@@ -544,7 +545,7 @@ class Panel extends JPanel {
                             break;
                         case 2:
                             countFracBits++;
-                            if (countFracBits > maxFrac) {
+                            if (countFracBits > maxMant) {
                                 isInvalid = true;
                             }
                             break;
@@ -574,7 +575,7 @@ class Panel extends JPanel {
                     countSignBits++;
                 } else if (countExpBits < maxExp) {
                     countExpBits++;
-                } else if (countFracBits < maxFrac) {
+                } else if (countFracBits < maxMant) {
                     countFracBits++;
                 }
                 i++;
@@ -585,13 +586,35 @@ class Panel extends JPanel {
             jlNumberInfo.setText("INVALID BINARY NUMBER");
             jtaDecimal.setText("");
         } else {
+            int addSpace;
+
+            if (isSpaced) {
+                addSpace = 1;
+            } else {
+                addSpace = 0;
+            }
+
+
+
             jlNumberInfo.setText(
                     "Sign (" + countSignBits + ")" +
                             "    Exponent (" + countExpBits + ")" +
                             "    Fraction (" + countFracBits + ")" +
                             "    Spaces (" + countSpaces+ ")");
+
+            String full = jtfBinary.getText();
+
             if (activeTextField == "jtfBinary") {
-                jtaDecimal.setText(jtfBinary.getText());
+                if (full.length() == maxLength) {
+                    String arg1 = full.substring(0, 1);
+                    String arg2 = full.substring(1+addSpace, 1+maxExp+addSpace);
+                    String arg3 = full.substring(1+maxExp+addSpace+addSpace, 1+maxExp+addSpace+addSpace+maxMant);
+
+                    floatingPoint = new FloatingPoint(arg1, arg2, arg3);
+                    jtaDecimal.setText(floatingPoint.getDecimalVerbose());
+                } else {
+                    jtaDecimal.setText("");
+                }
             }
         }
     }
@@ -616,17 +639,15 @@ class Panel extends JPanel {
                 }
 
                 if (validNumber) {
-                    calc = new BinaryFractionCalc(new BigDecimal(jtaDecimal.getText()));
-
-                    String result = "";
-
                     if (jsBitMode.getValue() == 1) {
-                        result = calc.getHalf();
+                        floatingPoint = new FloatingPoint(new BigDecimal(jtaDecimal.getText()), FloatingPoint.Precision.HALF);
                     } else if (jsBitMode.getValue() == 2) {
-                        result = calc.getSingle();
+                        floatingPoint = new FloatingPoint(new BigDecimal(jtaDecimal.getText()), FloatingPoint.Precision.SINGLE);
                     } else {
-                        result = calc.getDouble();
+                        floatingPoint = new FloatingPoint(new BigDecimal(jtaDecimal.getText()), FloatingPoint.Precision.DOUBLE);
                     }
+
+                    String result = floatingPoint.spacedBinString();
 
                     if (!isTrailing) {
                         int i = maxLength - 1;
